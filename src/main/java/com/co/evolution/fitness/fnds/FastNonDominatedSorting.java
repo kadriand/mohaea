@@ -1,6 +1,5 @@
 package com.co.evolution.fitness.fnds;
 
-import com.co.evolution.fitness.fnds.util.DominanceHelper;
 import com.co.evolution.model.individual.Individual;
 import lombok.Getter;
 
@@ -35,6 +34,7 @@ import java.util.List;
  */
 
 public class FastNonDominatedSorting<T extends Individual> extends NonDominatedSorting<T> {
+
     private int[] queue;
     @Getter
     private int[] howManyIDominate;
@@ -42,6 +42,10 @@ public class FastNonDominatedSorting<T extends Individual> extends NonDominatedS
     private int[] howManyDominateMe;
     @Getter
     private int[][] whoIDominate;
+
+    private static final int[] REINDEX = { 0, -1, 1, 0 };
+    private static final int HAS_LESS_MASK = 1;
+    private static final int HAS_GREATER_MASK = 2;
 
     public FastNonDominatedSorting(int maximumPoints, int maximumObjectives) {
         super(maximumPoints, maximumObjectives);
@@ -81,7 +85,7 @@ public class FastNonDominatedSorting<T extends Individual> extends NonDominatedS
         int until = population.size();
         for (int j = from; j < until; ++j) {
             T loopIndividual = population.get(j);
-            int comp = DominanceHelper.dominanceComparison(comparisonObjectives, loopIndividual.getObjectiveFunctionValues(), comparisonObjectives.length);
+            int comp = dominanceComparison(comparisonObjectives, loopIndividual.getObjectiveFunctionValues(), comparisonObjectives.length);
             switch (comp) {
                 case -1:
                     pushToDominateList(index, j);
@@ -102,7 +106,7 @@ public class FastNonDominatedSorting<T extends Individual> extends NonDominatedS
         int until = population.size();
         for (int j = 0; j < until; ++j) {
             T loopIndividual = population.get(j);
-            int comp = DominanceHelper.dominanceComparison(comparisonObjectives, loopIndividual.getObjectiveFunctionValues(), comparisonObjectives.length);
+            int comp = dominanceComparison(comparisonObjectives, loopIndividual.getObjectiveFunctionValues(), comparisonObjectives.length);
             switch (comp) {
                 case +1:
                     howManyDominate++;
@@ -112,6 +116,27 @@ public class FastNonDominatedSorting<T extends Individual> extends NonDominatedS
             comparisonIndividual.getSiblingsDistances().add(distance);
         }
         comparisonIndividual.setHowManyDominateMe(howManyDominate);
+    }
+
+    private int dominanceComparison(double[] a, double[] b, int dim) {
+        int rv = detailedDominanceComparison(a, b, dim, HAS_GREATER_MASK | HAS_LESS_MASK);
+        return REINDEX[rv];
+    }
+
+    private int detailedDominanceComparison(double[] a, double[] b, int dim, int breakMask) {
+        int result = 0;
+        for (int i = 0; i < dim; ++i) {
+            double ai = a[i], bi = b[i];
+            if (ai < bi) {
+                result |= HAS_LESS_MASK;
+            } else if (ai > bi) {
+                result |= HAS_GREATER_MASK;
+            }
+            if ((result & breakMask) == breakMask) {
+                break;
+            }
+        }
+        return result;
     }
 
     private double euclideanDistance(T one, T other) {

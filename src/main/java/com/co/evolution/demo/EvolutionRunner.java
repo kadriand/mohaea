@@ -3,13 +3,13 @@ package com.co.evolution.demo;
 import com.co.evolution.algorithm.HAEA;
 import com.co.evolution.demo.problems.KursaweFunction1;
 import com.co.evolution.demo.problems.KursaweFunction2;
-import com.co.evolution.fitness.ParetoPlotterInterceptor;
 import com.co.evolution.fitness.RealFitnessCalculation;
 import com.co.evolution.geneticoperators.RealCrossAverage;
 import com.co.evolution.geneticoperators.RealMutation;
 import com.co.evolution.geneticoperators.RealPickRandom;
 import com.co.evolution.individual.RealIndividual;
 import com.co.evolution.initialization.RandomRealInitialization;
+import com.co.evolution.interceptor.ParetoPlotterImageInterceptor;
 import com.co.evolution.model.EvolutionInterceptor;
 import com.co.evolution.model.FitnessCalculation;
 import com.co.evolution.model.GeneticOperator;
@@ -67,7 +67,8 @@ public class EvolutionRunner {
 
         FitnessCalculation<RealIndividual> fitnessCalculation = new RealFitnessCalculation(objectiveFunctions);
 
-        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterInterceptor<>(MAX_ITERATIONS / 5);
+//        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterFrameInterceptor<>(MAX_ITERATIONS / 5);
+        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(5 );
 
         //        GeneticAlgorithm<RealIndividual> ga = new GeneticAlgorithm<>(geneticOperators, terminationCondition, selectionMethod,true, initialization, fitnessCalculation);
         HAEA<RealIndividual> ga = new HAEA<>(geneticOperators, terminationCondition, selectionMethod, true, initialization, fitnessCalculation, evolutionInterceptor);

@@ -1,4 +1,4 @@
-package com.co.evolution.objectivefunction;
+package com.co.evolution.demo.problems;
 
 import com.co.evolution.individual.RealIndividual;
 import com.co.evolution.model.ObjectiveFunction;

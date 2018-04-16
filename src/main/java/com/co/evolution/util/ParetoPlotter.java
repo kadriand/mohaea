@@ -1,9 +1,10 @@
-package com.co.evolution.fitness.fnds;
+package com.co.evolution.util;
 
 
 import com.co.evolution.model.individual.Individual;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
@@ -14,6 +15,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.util.List;
 
 // ****************************************************************************
@@ -28,7 +30,9 @@ import java.util.List;
 // ****************************************************************************
 
 
-public class ParetoPlotter<T extends Individual> extends JFrame {
+public class ParetoPlotter<T extends Individual> {
+
+    private JFreeChart scatterPlot;
 
     /**
      * Pareto fronts plotter
@@ -36,9 +40,12 @@ public class ParetoPlotter<T extends Individual> extends JFrame {
      * @param name the frame title.
      */
     public ParetoPlotter(final String name, List<T> population) {
-        super("Plot " + name);
-        final XYSeries paretoFront = new XYSeries("First pareto front");
-        final XYSeries secondaryFronts = new XYSeries("Population");
+        buildPlot(name, population);
+    }
+
+    private void buildPlot(String name, List<T> population) {
+        XYSeries paretoFront = new XYSeries("First pareto front");
+        XYSeries secondaryFronts = new XYSeries("Population");
 
         population.stream()
                 .filter(individual -> individual.getHowManyDominateMe() == 0)
@@ -47,10 +54,10 @@ public class ParetoPlotter<T extends Individual> extends JFrame {
                 .stream().filter(individual -> individual.getHowManyDominateMe() > 0)
                 .forEach(individual -> secondaryFronts.add(individual.getObjectiveFunctionValues()[0], individual.getObjectiveFunctionValues()[1]));
 
-        final XYSeriesCollection data = new XYSeriesCollection();
+        XYSeriesCollection data = new XYSeriesCollection();
         data.addSeries(paretoFront);
         data.addSeries(secondaryFronts);
-        final JFreeChart scatterPlot = ChartFactory.createScatterPlot(
+        this.scatterPlot = ChartFactory.createScatterPlot(
                 name,
                 "f1",
                 "f2",
@@ -69,11 +76,32 @@ public class ParetoPlotter<T extends Individual> extends JFrame {
         rendererForDataset.setSeriesPaint(0, Color.BLUE);
         rendererForDataset.setSeriesPaint(1, Color.GREEN);
         renderer.setDefaultLinesVisible(false);
-
-        final ChartPanel chartPanel = new ChartPanel(scatterPlot);
-        chartPanel.setPreferredSize(new Dimension(500, 270));
-        setContentPane(chartPanel);
     }
 
+    public File toFile(String name) {
+        String fileName = name + ".jpeg";
+        String directory = "output/";
+        File scatterPlotFile = new File(directory + fileName);
+        if (!scatterPlotFile.exists())
+            new File(directory).mkdir();
+
+        try {
+            int width = 640;   /* Width of the image */
+            int height = 480;  /* Height of the image */
+            ChartUtils.saveChartAsJPEG(scatterPlotFile, scatterPlot, width, height);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return scatterPlotFile;
+    }
+
+    public JFrame toJFrame(String title) {
+        ChartPanel chartPanel = new ChartPanel(scatterPlot);
+        chartPanel.setPreferredSize(new Dimension(500, 270));
+        JFrame frame = new JFrame(title);
+        frame.setContentPane(chartPanel);
+        frame.pack();
+        return frame;
+    }
 
 }

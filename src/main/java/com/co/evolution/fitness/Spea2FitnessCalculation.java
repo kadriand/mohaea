@@ -9,7 +9,7 @@ import lombok.Getter;
 import java.util.Comparator;
 import java.util.List;
 
-public abstract class Spea2BasedFitnessCalculation<T extends Individual> implements FitnessCalculation<T> {
+public abstract class Spea2FitnessCalculation<T extends Individual> implements FitnessCalculation<T> {
 
     protected FastNonDominatedSorting<T> paretoRanks;
     protected int kthNeighbor;
@@ -17,7 +17,7 @@ public abstract class Spea2BasedFitnessCalculation<T extends Individual> impleme
     @Getter
     protected ObjectiveFunction<T>[] objectiveFunctions;
 
-    public Spea2BasedFitnessCalculation(ObjectiveFunction<T>[] objectiveFunctions) {
+    public Spea2FitnessCalculation(ObjectiveFunction<T>[] objectiveFunctions) {
         this.objectiveFunctions = objectiveFunctions;
     }
 
