@@ -8,15 +8,19 @@ public interface Individual extends Comparable<Individual> {
 
     void setFitness(double fitness);
 
-    double[] getObjectiveFunctionValues();
+    double[] getObjectiveValues();
 
-    void setObjectiveFunctionValues(double[] doubles);
+    void setObjectiveValues(double[] doubles);
+
+    int getParetoRank();
+
+    void setParetoRank(int paretoRank);
 
     int getHowManyDominateMe();
 
     void setHowManyDominateMe(int howManyIDominate);
 
-    List<Double> getSiblingsDistances();
+    List<Double> getDiversityMeasures();
 
     @Override
     int compareTo(Individual individual);

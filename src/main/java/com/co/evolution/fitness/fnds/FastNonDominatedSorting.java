@@ -33,26 +33,37 @@ import java.util.List;
  * @author Maxim Buzdalov (implementation)
  */
 
-public class FastNonDominatedSorting<T extends Individual> extends NonDominatedSorting<T> {
+public class FastNonDominatedSorting<T extends Individual> {
 
-    private int[] queue;
     @Getter
-    private int[] howManyIDominate;
+    int maximumPoints;
     @Getter
-    private int[] howManyDominateMe;
-    @Getter
-    private int[][] whoIDominate;
+    protected int[] ranks;
 
-    private static final int[] REINDEX = { 0, -1, 1, 0 };
+    List<T> population;
+
+    int objectivesSize;
+    int ranksSize;
+
+    int[] queue;
+    @Getter
+    int[] howManyIDominate;
+    @Getter
+    int[] howManyDominateMe;
+    @Getter
+    int[][] whoIDominate;
+
+    private static final int[] REINDEX = {0, -1, 1, 0};
     private static final int HAS_LESS_MASK = 1;
     private static final int HAS_GREATER_MASK = 2;
 
-    public FastNonDominatedSorting(int maximumPoints, int maximumObjectives) {
-        super(maximumPoints, maximumObjectives);
+    public FastNonDominatedSorting(List<T> population, int objectivesSize) {
+        this.population = population;
+        this.maximumPoints = population.size();
+        this.objectivesSize = objectivesSize;
         restore();
     }
 
-    @Override
     protected void restore() {
         queue = new int[maximumPoints];
         howManyIDominate = new int[maximumPoints];
@@ -60,72 +71,44 @@ public class FastNonDominatedSorting<T extends Individual> extends NonDominatedS
         whoIDominate = new int[maximumPoints][maximumPoints - 1];
     }
 
-    @Override
     public String getName() {
         return "Fast Non-Dominated Sorting (original version)";
     }
 
-    @Override
-    protected void closeImpl() {
-        queue = null;
-        howManyIDominate = null;
-        howManyDominateMe = null;
-        whoIDominate = null;
-    }
-
-    private void pushToDominateList(int good, int bad) {
+    /**
+     * Good dominates bad
+     *
+     * @param good
+     * @param bad
+     */
+    void pushToDominateList(int good, int bad) {
         ++howManyDominateMe[bad];
         whoIDominate[good][howManyIDominate[good]++] = bad;
     }
 
-    private void comparePointWithPopulation(int index, List<T> population, int from) {
+    protected void comparePointWithPopulation(int index, int from) {
         T comparisonIndividual = population.get(index);
-        double[] comparisonObjectives = comparisonIndividual.getObjectiveFunctionValues();
+        double[] comparisonObjectives = comparisonIndividual.getObjectiveValues();
 
         int until = population.size();
         for (int j = from; j < until; ++j) {
             T loopIndividual = population.get(j);
-            int comp = dominanceComparison(comparisonObjectives, loopIndividual.getObjectiveFunctionValues(), comparisonObjectives.length);
-            switch (comp) {
-                case -1:
-                    pushToDominateList(index, j);
-                    break;
-                case +1:
-                    pushToDominateList(j, index);
-                    break;
-            }
-            double distance = euclideanDistance(comparisonIndividual, loopIndividual);
-            comparisonIndividual.getSiblingsDistances().add(distance);
-            loopIndividual.getSiblingsDistances().add(distance);
+            int comp = dominanceComparison(comparisonObjectives, loopIndividual.getObjectiveValues());
+            if (comp == -1)
+                pushToDominateList(index, j);
+            else if (comp == +1)
+                pushToDominateList(j, index);
         }
     }
 
-    public void compareExternalWithPopulation(T comparisonIndividual, List<T> population) {
-        double[] comparisonObjectives = comparisonIndividual.getObjectiveFunctionValues();
-        int howManyDominate = 0;
-        int until = population.size();
-        for (int j = 0; j < until; ++j) {
-            T loopIndividual = population.get(j);
-            int comp = dominanceComparison(comparisonObjectives, loopIndividual.getObjectiveFunctionValues(), comparisonObjectives.length);
-            switch (comp) {
-                case +1:
-                    howManyDominate++;
-                    break;
-            }
-            double distance = euclideanDistance(comparisonIndividual, loopIndividual);
-            comparisonIndividual.getSiblingsDistances().add(distance);
-        }
-        comparisonIndividual.setHowManyDominateMe(howManyDominate);
-    }
-
-    private int dominanceComparison(double[] a, double[] b, int dim) {
-        int rv = detailedDominanceComparison(a, b, dim, HAS_GREATER_MASK | HAS_LESS_MASK);
+    int dominanceComparison(double[] a, double[] b) {
+        int rv = detailedDominanceComparison(a, b, HAS_GREATER_MASK | HAS_LESS_MASK);
         return REINDEX[rv];
     }
 
-    private int detailedDominanceComparison(double[] a, double[] b, int dim, int breakMask) {
+    int detailedDominanceComparison(double[] a, double[] b, int breakMask) {
         int result = 0;
-        for (int i = 0; i < dim; ++i) {
+        for (int i = 0; i < objectivesSize; ++i) {
             double ai = a[i], bi = b[i];
             if (ai < bi) {
                 result |= HAS_LESS_MASK;
@@ -139,61 +122,58 @@ public class FastNonDominatedSorting<T extends Individual> extends NonDominatedS
         return result;
     }
 
-    private double euclideanDistance(T one, T other) {
-        double sum = 0;
-        for (int i = 0; i < one.getObjectiveFunctionValues().length; i++)
-            sum += Math.pow(one.getObjectiveFunctionValues()[i] - other.getObjectiveFunctionValues()[i], 2);
-        return Math.pow(sum, 0.5);
-    }
-
-
-    private void comparePoints(List<T> population) {
+    void comparePoints() {
         int size = population.size();
-        for (int i = 0; i < size; ++i) {
-            comparePointWithPopulation(i, population, i + 1);
-            population.get(i).setHowManyDominateMe(howManyDominateMe[i]);
-        }
+        for (int i = 0; i < size; ++i)
+            comparePointWithPopulation(i, i + 1);
     }
 
-    private int enqueueZeroRanks(int n, int[] ranks) {
+    int enqueueZeroRanks() {
         int qHead = 0;
-        for (int i = 0; i < n; ++i) {
+        int size = ranks.length;
+        for (int i = 0; i < size; ++i) {
             if (howManyDominateMe[i] == 0) {
                 ranks[i] = 0;
+                population.get(i).setParetoRank(0);
                 queue[qHead++] = i;
             }
         }
         return qHead;
     }
 
-    private int decreaseWhomIDominate(int index, int[] ranks, int qHead) {
+    int decreaseWhomIDominate(int index, int qHead) {
         int[] iDominate = whoIDominate[index];
         int nextRank = ranks[index] + 1;
         for (int pos = howManyIDominate[index] - 1; pos >= 0; --pos) {
             int next = iDominate[pos];
             if (--howManyDominateMe[next] == 0) {
                 ranks[next] = nextRank;
+                ranksSize = nextRank > ranksSize ? nextRank : ranksSize;
+                population.get(next).setParetoRank(nextRank);
                 queue[qHead++] = next;
             }
         }
         return qHead;
     }
 
-    private void assignRanks() {
-        int size = this.ranks.length;
-        int qHead = enqueueZeroRanks(size, ranks);
+    void assignRanks() {
+        int qHead = enqueueZeroRanks();
         int qTail = 0;
         while (qHead > qTail) {
             int curr = queue[qTail++];
-            qHead = decreaseWhomIDominate(curr, ranks, qHead);
+            qHead = decreaseWhomIDominate(curr, qHead);
         }
     }
 
-    @Override
-    protected void sortChecked(List<T> population, int maximalMeaningfulRank) {
+    public void sort() {
+        restore();
+        this.ranks = new int[population.size()];
+        if (population.size() == 0)
+            return;
+
         Arrays.fill(howManyDominateMe, 0);
         Arrays.fill(howManyIDominate, 0);
-        comparePoints(population);
+        comparePoints();
         Arrays.fill(ranks, -1);
         assignRanks();
     }

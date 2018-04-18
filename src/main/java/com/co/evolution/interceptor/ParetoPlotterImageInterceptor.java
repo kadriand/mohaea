@@ -10,9 +10,11 @@ import java.util.List;
 public class ParetoPlotterImageInterceptor<T extends Individual> implements EvolutionInterceptor<T> {
 
     private int generationsGap;
+    private String filePrefix;
 
-    public ParetoPlotterImageInterceptor(int generationsGap) {
+    public ParetoPlotterImageInterceptor(int generationsGap, String prefix) {
         this.generationsGap = generationsGap;
+        this.filePrefix = prefix;
     }
 
     @Override
@@ -20,7 +22,7 @@ public class ParetoPlotterImageInterceptor<T extends Individual> implements Evol
         if (generation % generationsGap != 0 && generation != 1)
             return;
         ParetoPlotter<T> paretoPlotter = new ParetoPlotter<>("Iteration " + generation, population);
-        File scatterPlotFile = paretoPlotter.toFile("iteration-" + generation);
+        File scatterPlotFile = paretoPlotter.toFile(filePrefix + "iteration-" + generation);
         try {
             System.out.println("Pareto fronts stored in " + scatterPlotFile.getCanonicalPath());
         } catch (Exception e) {

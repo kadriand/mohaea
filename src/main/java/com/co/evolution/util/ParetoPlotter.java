@@ -48,11 +48,11 @@ public class ParetoPlotter<T extends Individual> {
         XYSeries secondaryFronts = new XYSeries("Population");
 
         population.stream()
-                .filter(individual -> individual.getHowManyDominateMe() == 0)
-                .forEach(individual -> paretoFront.add(individual.getObjectiveFunctionValues()[0], individual.getObjectiveFunctionValues()[1]));
+                .filter(individual -> individual.getParetoRank() == 0)
+                .forEach(individual -> paretoFront.add(individual.getObjectiveValues()[0], individual.getObjectiveValues()[1]));
         population
-                .stream().filter(individual -> individual.getHowManyDominateMe() > 0)
-                .forEach(individual -> secondaryFronts.add(individual.getObjectiveFunctionValues()[0], individual.getObjectiveFunctionValues()[1]));
+                .stream().filter(individual -> individual.getParetoRank () > 0)
+                .forEach(individual -> secondaryFronts.add(individual.getObjectiveValues()[0], individual.getObjectiveValues()[1]));
 
         XYSeriesCollection data = new XYSeriesCollection();
         data.addSeries(paretoFront);
@@ -82,8 +82,7 @@ public class ParetoPlotter<T extends Individual> {
         String fileName = name + ".jpeg";
         String directory = "output/";
         File scatterPlotFile = new File(directory + fileName);
-        if (!scatterPlotFile.exists())
-            new File(directory).mkdir();
+        scatterPlotFile.getParentFile().mkdirs();
 
         try {
             int width = 640;   /* Width of the image */

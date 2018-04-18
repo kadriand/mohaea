@@ -16,14 +16,18 @@ public abstract class IndividualImpl<T> implements Individual {
 
     @Setter
     @Getter
-    private double[] objectiveFunctionValues;
+    private double[] objectiveValues;
 
     @Setter
     @Getter
     private int howManyDominateMe;
 
+    @Setter
     @Getter
-    private List<Double> siblingsDistances = new ArrayList<>();
+    private int paretoRank;
+
+    @Getter
+    private List<Double> diversityMeasures = new ArrayList<>();
 
     public T get() {
         return individual;

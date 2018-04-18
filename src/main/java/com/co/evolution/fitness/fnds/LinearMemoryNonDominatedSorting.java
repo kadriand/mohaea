@@ -1,37 +1,42 @@
 package com.co.evolution.fitness.fnds;
 
 
-import com.co.evolution.fitness.fnds.util.ArrayHelper;
-import com.co.evolution.fitness.fnds.util.DoubleArraySorter;
 import com.co.evolution.model.individual.Individual;
+import lombok.Getter;
 
 import java.util.List;
 
-public class LinearMemoryNonDominatedSorting extends NonDominatedSorting<Individual> {
+public class LinearMemoryNonDominatedSorting<T extends Individual> {
+
+    @Getter
+    protected final int maximumPoints;
+    @Getter
+    protected final int maximumDimension;
+    @Getter
+    protected int[] ranks;
+
     private int[] indices;
     private int[] ranksInner;
     private double[][] pointsData;
-    private DoubleArraySorter sorter;
+    private ArraySorter sorter;
 
     public LinearMemoryNonDominatedSorting(int maximumPoints, int maximumDimension) {
-        super(maximumPoints, maximumDimension);
+        this.maximumPoints = maximumPoints;
+        this.maximumDimension = maximumDimension;
     }
 
-    @Override
     protected void restore() {
-        sorter = new DoubleArraySorter(maximumPoints);
+        sorter = new ArraySorter(maximumPoints);
         indices = new int[maximumPoints];
         ranksInner = new int[maximumPoints];
         pointsData = new double[maximumPoints][];
     }
 
-    @Override
     public String getName() {
         return "Fast Non-Dominated Sorting (with linear memory)";
     }
 
-    @Override
-    protected void closeImpl() {
+    protected void close() {
         indices = null;
         ranksInner = null;
         pointsData = null;
@@ -64,14 +69,29 @@ public class LinearMemoryNonDominatedSorting extends NonDominatedSorting<Individ
         }
     }
 
-    @Override
-    protected void sortChecked(List<Individual> population, int maximalMeaningfulRank) {
+    /**
+     * Performs non-dominated sorting.
+     *
+     * @param population the list of individuals to be sorted.
+     */
+    /**
+     * Performs non-dominated sorting. All ranks above the given {@code maximalMeaningfulRank} will be reported
+     * as {@code maximalMeaningfulRank + 1}.
+     *
+     * @param population the array of points to be sorted.
+     */
+    public void sort(List<T> population) {
+        restore();
+        this.ranks = new int[population.size()];
+        if (population.size() == 0)
+            return;
+
         int n = population.size();
-        int dim = population.get(0).getObjectiveFunctionValues().length;
-        ArrayHelper.fillIdentity(indices, n);
+        int dim = population.get(0).getObjectiveValues().length;
+        ArraySorter.fillIdentity(indices, n);
         sorter.lexicographicalSort(population, indices, 0, n, dim);
-        int newN = DoubleArraySorter.retainUniquePoints(population, indices, this.pointsData, this.ranks);
-        doSorting(newN, dim, maximalMeaningfulRank);
+        int newN = sorter.retainUniquePoints(population, indices, this.pointsData, this.ranks);
+        doSorting(newN, dim, population.size());
         for (int i = 0; i < n; ++i) {
             this.ranks[i] = this.ranksInner[this.ranks[i]];
             this.pointsData[i] = null;

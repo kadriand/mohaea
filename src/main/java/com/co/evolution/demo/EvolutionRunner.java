@@ -1,9 +1,8 @@
 package com.co.evolution.demo;
 
 import com.co.evolution.algorithm.HAEA;
-import com.co.evolution.demo.problems.KursaweFunction1;
-import com.co.evolution.demo.problems.KursaweFunction2;
-import com.co.evolution.fitness.RealFitnessCalculation;
+import com.co.evolution.demo.problems.Schaffer;
+import com.co.evolution.fitness.NSGA2FitnessCalculation;
 import com.co.evolution.geneticoperators.RealCrossAverage;
 import com.co.evolution.geneticoperators.RealMutation;
 import com.co.evolution.geneticoperators.RealPickRandom;
@@ -27,9 +26,9 @@ import java.util.List;
 public class EvolutionRunner {
 
     public static void main(String args[]) {
-                int dimensions = 3;
-        //                        int dimensions = 1;
-//        int dimensions = 30;
+//                int dimensions = 3;
+        int dimensions = 1;
+        //                int dimensions = 30;
 
         Double[] min = new Double[dimensions];
         Double[] max = new Double[dimensions];
@@ -39,20 +38,20 @@ public class EvolutionRunner {
 
         ObjectiveFunction[] objectiveFunctions = new ObjectiveFunction[2];
 
-        objectiveFunctions[0] = new KursaweFunction1(true);
-        objectiveFunctions[1] = new KursaweFunction2(true);
-        Arrays.fill(min, -5.0);
-        Arrays.fill(max, 5.0);
+//                Arrays.fill(min, -5.0);
+//                Arrays.fill(max, 5.0);
+//                objectiveFunctions[0] = new KursaweFunction1(true);
+//                objectiveFunctions[1] = new KursaweFunction2(true);
 
-        //                Arrays.fill(min, -10.0);
-        //                Arrays.fill(max, 10.0);
-        //                objectiveFunctions[0] = new Schaffer(true, 0);
-        //                objectiveFunctions[1] = new Schaffer(true, 2);
+        Arrays.fill(min, -10.0);
+        Arrays.fill(max, 10.0);
+        objectiveFunctions[0] = new Schaffer(true, 0);
+        objectiveFunctions[1] = new Schaffer(true, 2);
 
-//        Arrays.fill(min, 0.0);
-//        Arrays.fill(max, 1.0);
-//        objectiveFunctions[0] = new ZitzlerDebThiele.ZDT2_F1(true);
-//        objectiveFunctions[1] = new ZitzlerDebThiele.ZDT2_F2(true);
+        //                Arrays.fill(min, 0.0);
+        //                Arrays.fill(max, 1.0);
+        //                objectiveFunctions[0] = new ZitzlerDebThiele.ZDT2_F1(true);
+        //                objectiveFunctions[1] = new ZitzlerDebThiele.ZDT2_F2(true);
 
         List<GeneticOperator<RealIndividual>> geneticOperators = new ArrayList<>();
         geneticOperators.add(new RealCrossAverage());
@@ -65,10 +64,13 @@ public class EvolutionRunner {
 
         PopulationInitialization<RealIndividual> initialization = new RandomRealInitialization(POPULATION_SIZE, min, max, dimensions);
 
-        FitnessCalculation<RealIndividual> fitnessCalculation = new RealFitnessCalculation(objectiveFunctions);
+        //        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterFrameInterceptor<>(MAX_ITERATIONS / 5);
 
-//        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterFrameInterceptor<>(MAX_ITERATIONS / 5);
-        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(5 );
+        FitnessCalculation<RealIndividual> fitnessCalculation = new NSGA2FitnessCalculation<RealIndividual>(objectiveFunctions);
+        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(5, "nsga2/nsga2-");
+//
+//                FitnessCalculation<RealIndividual> fitnessCalculation = new SPEA2FitnessCalculation<RealIndividual>(objectiveFunctions);
+//                EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(5, "spea2/spea2-");
 
         //        GeneticAlgorithm<RealIndividual> ga = new GeneticAlgorithm<>(geneticOperators, terminationCondition, selectionMethod,true, initialization, fitnessCalculation);
         HAEA<RealIndividual> ga = new HAEA<>(geneticOperators, terminationCondition, selectionMethod, true, initialization, fitnessCalculation, evolutionInterceptor);
@@ -76,7 +78,7 @@ public class EvolutionRunner {
         List<RealIndividual> finalPop = ga.apply();
 
         RealIndividual best = ga.getBest(finalPop);
-        System.out.println("Value: " + best.toString() + " Fitness: " + best.getFitness() + " Value: " + Arrays.toString(best.getObjectiveFunctionValues()));
+        System.out.println("Value: " + best.toString() + " Fitness: " + best.getFitness() + " Value: " + Arrays.toString(best.getObjectiveValues()));
     }
 
 }

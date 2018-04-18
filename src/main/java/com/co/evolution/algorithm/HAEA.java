@@ -35,7 +35,7 @@ public class HAEA<T extends Individual> extends Algorithm<T> {
         int populationSize = pop.size();
         T best = getBest(pop);
         T bestBefore = null;
-        System.out.println("Value: " + best.toString() + " Fitness: " + best.getFitness() + " Value: " + Arrays.toString(best.getObjectiveFunctionValues()));
+        System.out.println("Value: " + best.toString() + " Fitness: " + best.getFitness() + " Value: " + Arrays.toString(best.getObjectiveValues()));
 
         double[][] operatorsProbabilities = new double[populationSize][geneticOperators.size()];
         for (int i = 0; i < populationSize; i++)
@@ -63,9 +63,9 @@ public class HAEA<T extends Individual> extends Algorithm<T> {
                 List<T> children = selectedGO.apply(parents);
                 int functionsSize = fitnessCalculation.getObjectiveFunctions().length;
                 for (T child : children) {
-                    child.setObjectiveFunctionValues(new double[functionsSize]);
+                    child.setObjectiveValues(new double[functionsSize]);
                     for (int j = 0; j < functionsSize; j++)
-                        child.getObjectiveFunctionValues()[j] = fitnessCalculation.getObjectiveFunctions()[j].apply(child);
+                        child.getObjectiveValues()[j] = fitnessCalculation.getObjectiveFunctions()[j].apply(child);
                     child.setFitness(fitnessCalculation.calculate(child, pop));
                 }
 
@@ -88,7 +88,7 @@ public class HAEA<T extends Individual> extends Algorithm<T> {
 
             bestBefore = best;
             best = getBest(pop);
-            System.out.println("Value: " + best.toString() + " Fitness: " + best.getFitness() + " Value: " + Arrays.toString(best.getObjectiveFunctionValues()));
+            System.out.println("Value: " + best.toString() + " Fitness: " + best.getFitness() + " Value: " + Arrays.toString(best.getObjectiveValues()));
             iteration++;
         }
 

@@ -23,9 +23,9 @@ public class RandomRealInitialization implements PopulationInitialization<RealIn
             RealIndividual realIndividual = new RealIndividual(dimensions);
             realIndividual.initRandom(min, max);
             int functionsSize = fitnessCalculation.getObjectiveFunctions().length;
-            realIndividual.setObjectiveFunctionValues(new double[functionsSize]);
+            realIndividual.setObjectiveValues(new double[functionsSize]);
             for (int j = 0; j < functionsSize; j++)
-                realIndividual.getObjectiveFunctionValues()[j] = fitnessCalculation.getObjectiveFunctions()[j].apply(realIndividual);
+                realIndividual.getObjectiveValues()[j] = fitnessCalculation.getObjectiveFunctions()[j].apply(realIndividual);
             pop.add(realIndividual);
         }
         fitnessCalculation.newGenerationApply(pop);
@@ -40,9 +40,9 @@ public class RandomRealInitialization implements PopulationInitialization<RealIn
             RealIndividual realIndividual = new RealIndividual(dimensions);
             realIndividual.initRandom(min, max);
             pop.add(realIndividual);
-            realIndividual.setObjectiveFunctionValues(new double[2]);
+            realIndividual.setObjectiveValues(new double[2]);
             for (int j = 0; j < 2; j++)
-                realIndividual.getObjectiveFunctionValues()[j] = realIndividual.get()[j];
+                realIndividual.getObjectiveValues()[j] = realIndividual.get()[j];
         }
         return pop;
     }
