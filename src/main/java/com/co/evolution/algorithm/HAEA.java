@@ -1,9 +1,10 @@
 package com.co.evolution.algorithm;
 
+import com.co.evolution.interceptor.DefaultInterceptor;
 import com.co.evolution.model.Algorithm;
-import com.co.evolution.model.EvolutionInterceptor;
 import com.co.evolution.model.FitnessCalculation;
 import com.co.evolution.model.GeneticOperator;
+import com.co.evolution.model.Population;
 import com.co.evolution.model.PopulationInitialization;
 import com.co.evolution.model.SelectionMethod;
 import com.co.evolution.model.TerminationCondition;
@@ -11,42 +12,32 @@ import com.co.evolution.model.individual.Individual;
 import com.co.evolution.util.RandomUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class HAEA<T extends Individual> extends Algorithm<T> {
 
-    private boolean existsInterceptor;
-
-    public HAEA(List<GeneticOperator<T>> geneticOperators, TerminationCondition<T> terminationCondition, SelectionMethod<T> selectionMethod, boolean minimize, PopulationInitialization<T> initialization, FitnessCalculation<T> fitnessCalculation, EvolutionInterceptor<T> evolutionInterceptor) {
-        super(minimize, geneticOperators, terminationCondition, selectionMethod, initialization, fitnessCalculation, evolutionInterceptor);
-        this.existsInterceptor = evolutionInterceptor != null;
-    }
-
-    public HAEA(List<GeneticOperator<T>> geneticOperators, TerminationCondition<T> terminationCondition, SelectionMethod<T> selectionMethod, boolean minimize, PopulationInitialization<T> initialization, FitnessCalculation<T> fitnessCalculation) {
-        super(minimize, geneticOperators, terminationCondition, selectionMethod, initialization, fitnessCalculation, null);
+    public HAEA(List<GeneticOperator<T>> geneticOperators, TerminationCondition<T> terminationCondition, SelectionMethod<T> selectionMethod, PopulationInitialization<T> initialization, FitnessCalculation<T> fitnessCalculation) {
+        super(geneticOperators, terminationCondition, selectionMethod, initialization, fitnessCalculation, new DefaultInterceptor<>());
     }
 
     @Override
-    public List<T> apply() {
+    public Population<T> apply() {
         int iteration = 1;
-        List<T> pop = initialization.init(fitnessCalculation);
+        Population<T> pop = initialization.init(fitnessCalculation);
 
         int populationSize = pop.size();
-        T best = getBest(pop);
+        T best = pop.getBest();
         T bestBefore = null;
-        System.out.println("Value: " + best.toString() + " Fitness: " + best.getFitness() + " Value: " + Arrays.toString(best.getObjectiveValues()));
 
         double[][] operatorsProbabilities = new double[populationSize][geneticOperators.size()];
         for (int i = 0; i < populationSize; i++)
             for (int j = 0; j < geneticOperators.size(); j++)
                 operatorsProbabilities[i][j] = 1.0 / geneticOperators.size();
 
-        while (terminationCondition.getCondition(iteration, best, bestBefore)) {
-            if (this.existsInterceptor)
-                evolutionInterceptor.apply(iteration, pop);
 
-            List<T> newPop = new ArrayList<>();
+        while (terminationCondition.getCondition(iteration, best, bestBefore)) {
+            evolutionInterceptor.apply(iteration, pop);
+            Population<T> newPop = new Population<>();
             selectionMethod.init(pop);
 
             for (int i = 0; i < populationSize; i++) {
@@ -56,7 +47,7 @@ public class HAEA<T extends Individual> extends Algorithm<T> {
                 List<T> parents = new ArrayList<>();
                 parents.add(actualIndividual);
                 if (selectedGO.getCardinal() > 1) {
-                    List<T> selectedParents = selectionMethod.select(pop, selectedGO.getCardinal() - 1, isMinimize());
+                    List<T> selectedParents = selectionMethod.select(pop, selectedGO.getCardinal() - 1);
                     parents.addAll(selectedParents);
                 }
 
@@ -65,19 +56,19 @@ public class HAEA<T extends Individual> extends Algorithm<T> {
                 for (T child : children) {
                     child.setObjectiveValues(new double[functionsSize]);
                     for (int j = 0; j < functionsSize; j++)
-                        child.getObjectiveValues()[j] = fitnessCalculation.getObjectiveFunctions()[j].apply(child);
+                        child.getObjectiveValues()[j] = fitnessCalculation.getObjectiveFunctions()[j].compute(child);
                     child.setFitness(fitnessCalculation.calculate(child, pop));
                 }
 
-                children.add(actualIndividual);
-                T childrenBest = getBest(children);
-                if (childrenBest == actualIndividual || childrenBest.getFitness() == actualIndividual.getFitness()) {
-                    //punish
+                Population<T> childrenPop = new Population<>();
+                childrenPop.addAll(children);
+                childrenPop.add(actualIndividual);
+
+                T childrenBest = childrenPop.getBest();
+                if (childrenBest == actualIndividual || childrenBest.getFitness() == actualIndividual.getFitness()) //punish
                     modifyProbabilities(-1, operatorsProbabilities[i], selectedOGIndex);
-                } else {
-                    //reward
+                else  //reward
                     modifyProbabilities(1, operatorsProbabilities[i], selectedOGIndex);
-                }
                 newPop.add(childrenBest);
             }
 
@@ -87,13 +78,16 @@ public class HAEA<T extends Individual> extends Algorithm<T> {
                 individual.setFitness(fitnessCalculation.calculate(individual, pop));
 
             bestBefore = best;
-            best = getBest(pop);
-            System.out.println("Value: " + best.toString() + " Fitness: " + best.getFitness() + " Value: " + Arrays.toString(best.getObjectiveValues()));
+            best = pop.getBest();
             iteration++;
         }
+        evolutionInterceptor.apply(pop);
 
-        if (this.existsInterceptor)
-            evolutionInterceptor.apply(iteration, pop);
+        pop.stream().forEach(individual -> {
+            for (int i = 0; i < fitnessCalculation.getObjectiveFunctions().length; i++)
+                if (!fitnessCalculation.getObjectiveFunctions()[i].isMinimize())
+                    individual.getObjectiveValues()[i] = individual.getObjectiveValues()[i] * -1.0;
+        });
 
         return pop;
     }

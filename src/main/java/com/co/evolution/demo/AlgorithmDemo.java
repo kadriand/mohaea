@@ -9,10 +9,9 @@ import com.co.evolution.model.GeneticOperator;
 import com.co.evolution.model.ObjectiveFunction;
 import com.co.evolution.model.PopulationInitialization;
 import com.co.evolution.model.SelectionMethod;
-import com.co.evolution.model.TerminationCondition;
 import com.co.evolution.demo.problems.RastriginFunction;
 import com.co.evolution.selection.TournamentSelection;
-import com.co.evolution.terminationcondition.IterationsTerminationCondition;
+import com.co.evolution.termination.MaxIterationsTerminationCondition;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +38,7 @@ public class AlgorithmDemo {
         geneticOperators.add(new RealMutation(1.0, 0.0));
         geneticOperators.add(new RealPickRandom(4));
 
-        TerminationCondition<RealIndividual> terminationCondition = new IterationsTerminationCondition(MAX_ITERATIONS);
+        com.co.evolution.model.TerminationCondition terminationCondition = new MaxIterationsTerminationCondition(MAX_ITERATIONS);
 
         SelectionMethod<RealIndividual> selectionMethod = new TournamentSelection(4);
 
@@ -52,7 +51,7 @@ public class AlgorithmDemo {
 
 //        List<RealIndividual> finalPop = ga.apply();
 //
-//        RealIndividual best = ga.getBest(finalPop);
+//        RealIndividual best = ga.findBest(finalPop);
 
 //        System.out.println("Value: " + best.toString() + " Fitness: " + best.getFitness());
     }

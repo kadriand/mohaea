@@ -33,7 +33,8 @@ public class SPEA2FitnessCalculation<T extends Individual> implements FitnessCal
         double sigmaSquare = individual.getDiversityMeasures().get(kthNeighbor);
         double density = 1.0 / (sigmaSquare + 2.0);
 
-        return individual.getHowManyDominateMe() + density;
+        double penalization = individual.getPenalization();
+        return individual.getHowManyDominateMe() + density + penalization;
     }
 
     @Override

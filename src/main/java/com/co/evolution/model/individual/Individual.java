@@ -16,6 +16,8 @@ public interface Individual extends Comparable<Individual> {
 
     void setParetoRank(int paretoRank);
 
+    double getPenalization();
+
     int getHowManyDominateMe();
 
     void setHowManyDominateMe(int howManyIDominate);

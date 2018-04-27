@@ -6,6 +6,6 @@ public interface SelectionMethod<T> {
 
     void init(List<T> individuals);
 
-    List<T> select(List<T> individuals, int individualNumber, boolean minimize);
+    List<T> select(List<T> individuals, int individualNumber);
 
 }

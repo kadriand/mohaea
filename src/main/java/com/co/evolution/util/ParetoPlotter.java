@@ -40,19 +40,28 @@ public class ParetoPlotter<T extends Individual> {
      * @param name the frame title.
      */
     public ParetoPlotter(final String name, List<T> population) {
-        buildPlot(name, population);
+        buildPlot(name, population, new double[]{1.0, 1.0});
     }
 
-    private void buildPlot(String name, List<T> population) {
+    /**
+     * Pareto fronts plotter
+     *
+     * @param name the frame title.
+     */
+    public ParetoPlotter(final String name, List<T> population, double[] functionsSigns) {
+        buildPlot(name, population, functionsSigns);
+    }
+
+    private void buildPlot(String name, List<T> population, double[] functionsSigns) {
         XYSeries paretoFront = new XYSeries("First pareto front");
         XYSeries secondaryFronts = new XYSeries("Population");
 
         population.stream()
                 .filter(individual -> individual.getParetoRank() == 0)
-                .forEach(individual -> paretoFront.add(individual.getObjectiveValues()[0], individual.getObjectiveValues()[1]));
+                .forEach(individual -> paretoFront.add(functionsSigns[0] * individual.getObjectiveValues()[0], functionsSigns[1] * individual.getObjectiveValues()[1]));
         population
-                .stream().filter(individual -> individual.getParetoRank () > 0)
-                .forEach(individual -> secondaryFronts.add(individual.getObjectiveValues()[0], individual.getObjectiveValues()[1]));
+                .stream().filter(individual -> individual.getParetoRank() > 0)
+                .forEach(individual -> secondaryFronts.add(functionsSigns[0] * individual.getObjectiveValues()[0], functionsSigns[1] * individual.getObjectiveValues()[1]));
 
         XYSeriesCollection data = new XYSeriesCollection();
         data.addSeries(paretoFront);

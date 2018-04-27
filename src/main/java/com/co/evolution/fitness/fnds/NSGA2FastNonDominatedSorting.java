@@ -30,15 +30,16 @@ public class NSGA2FastNonDominatedSorting<T extends Individual> extends FastNonD
 
     private void fillDiversityMeasures(List<T> rankIndividuals, int rank) {
         int individualsSize = rankIndividuals.size();
-
         for (int o = 0; o < objectivesSize; o++) {
             final int objectiveIndex = o;
             rankIndividuals.sort(Comparator.comparingDouble(individual -> individual.getObjectiveValues()[objectiveIndex]));
-            objectivesRange[rank][o] = rankIndividuals.size() == 1 ? 0.0 : rankIndividuals.get(individualsSize - 1).getObjectiveValues()[o] - rankIndividuals.get(0).getObjectiveValues()[o];
+            objectivesRange[rank][o] = individualsSize == 1 ? 0.0 : rankIndividuals.get(individualsSize - 1).getObjectiveValues()[o] - rankIndividuals.get(0).getObjectiveValues()[o];
             for (int i = 0; i < individualsSize; i++) {
                 double objectiveCrowdingDistance;
-                if (i == 0 || i == individualsSize - 1)
-                    objectiveCrowdingDistance = 1.0;
+                if (i == 0)
+                    objectiveCrowdingDistance = individualsSize == 1 ? 1.0 :(rankIndividuals.get(i + 1).getObjectiveValues()[o] - rankIndividuals.get(i).getObjectiveValues()[o]) / objectivesRange[rank][o];
+                else if (i == individualsSize - 1)
+                    objectiveCrowdingDistance = (rankIndividuals.get(i).getObjectiveValues()[o] - rankIndividuals.get(i - 1).getObjectiveValues()[o]) / objectivesRange[rank][o];
                 else
                     objectiveCrowdingDistance = (rankIndividuals.get(i + 1).getObjectiveValues()[o] - rankIndividuals.get(i - 1).getObjectiveValues()[o]) / objectivesRange[rank][o] / 2;
                 rankIndividuals.get(i).getDiversityMeasures().add(objectiveCrowdingDistance);

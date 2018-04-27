@@ -13,4 +13,13 @@ public abstract class ObjectiveFunction<T> {
 
     public abstract double apply(T individual);
 
+    /**
+     * Consider whether the objective must be minimized or maximizec
+     * @param individual
+     * @return
+     */
+    public double compute(T individual) {
+        return (minimize ? 1.0 : -1.0) * apply(individual);
+    }
+
 }

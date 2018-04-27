@@ -37,8 +37,6 @@ public abstract class IndividualImpl<T> implements Individual {
         this.individual = individual;
     }
 
-    public abstract void initRandom(T min, T max);
-
     public abstract Individual clone();
 
     @Override

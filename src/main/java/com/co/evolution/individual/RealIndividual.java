@@ -2,30 +2,18 @@ package com.co.evolution.individual;
 
 import com.co.evolution.model.individual.Individual;
 import com.co.evolution.model.individual.IndividualImpl;
-import com.co.evolution.util.RandomUtils;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import java.util.Arrays;
 
+@Data
 public class RealIndividual extends IndividualImpl<Double[]> {
 
-    @Getter
-    @Setter
     private int dimensions;
 
-    public RealIndividual(int dimensions)
-    {
+    public RealIndividual(int dimensions) {
         this.dimensions = dimensions;
         set(new Double[dimensions]);
-    }
-
-    @Override
-    public void initRandom(Double[] min, Double max[]) {
-        for (int i = 0; i < dimensions; i++) {
-            get()[i] = RandomUtils.nextDouble(min[i], max[i]);
-        }
     }
 
     @Override
@@ -39,8 +27,16 @@ public class RealIndividual extends IndividualImpl<Double[]> {
     }
 
     @Override
-    public String toString()
-    {
+    public double getPenalization() {
+        return 0;
+    }
+
+    public String toString() {
         return Arrays.toString(get());
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        return this == object;
     }
 }

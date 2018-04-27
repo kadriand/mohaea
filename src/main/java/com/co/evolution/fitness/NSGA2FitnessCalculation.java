@@ -30,9 +30,10 @@ public class NSGA2FitnessCalculation<T extends Individual> implements FitnessCal
         for (int o = 0; o < objectiveFunctions.length; o++)
             crowdingDistance += individual.getDiversityMeasures().get(o);
         double density = 1.0 / (crowdingDistance + 2.0);
-        if(density>1)
+        if (density > 1)
             System.out.println(density);
-        return individual.getParetoRank() + density;
+        double penalization = individual.getPenalization();
+        return individual.getParetoRank() + density + penalization;
     }
 
     @Override
