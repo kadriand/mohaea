@@ -1,0 +1,177 @@
+package com.co.evolution.demo;
+
+import com.co.evolution.algorithm.HAEA;
+import com.co.evolution.demo.problems.KursaweFunction1;
+import com.co.evolution.demo.problems.KursaweFunction2;
+import com.co.evolution.demo.problems.Schaffer;
+import com.co.evolution.demo.problems.ZitzlerDebThiele;
+import com.co.evolution.fitness.SPEA2FitnessCalculation;
+import com.co.evolution.geneticoperators.RealCrossAverage;
+import com.co.evolution.geneticoperators.RealMutation;
+import com.co.evolution.geneticoperators.RealPickRandom;
+import com.co.evolution.individual.RealIndividual;
+import com.co.evolution.initialization.RandomRealInitialization;
+import com.co.evolution.interceptor.ParetoPlotterImageInterceptor;
+import com.co.evolution.model.EvolutionInterceptor;
+import com.co.evolution.model.FitnessCalculation;
+import com.co.evolution.model.GeneticOperator;
+import com.co.evolution.model.ObjectiveFunction;
+import com.co.evolution.model.Population;
+import com.co.evolution.model.PopulationInitialization;
+import com.co.evolution.model.SelectionMethod;
+import com.co.evolution.selection.TournamentSelection;
+import com.co.evolution.termination.MaxIterationsTerminationCondition;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class EvolutionRunner {
+
+    public static void main(String args[]) {
+        kursaweFunction();
+
+    }
+
+    public static void kursaweFunction() {
+        int dimensions = 3;
+
+        Double[] min = new Double[dimensions];
+        Double[] max = new Double[dimensions];
+
+        int MAX_ITERATIONS = 100;
+        int POPULATION_SIZE = 100;
+
+        ObjectiveFunction[] objectiveFunctions = new ObjectiveFunction[2];
+
+        Arrays.fill(min, -5.0);
+        Arrays.fill(max, 5.0);
+        objectiveFunctions[0] = new KursaweFunction1(true);
+        objectiveFunctions[1] = new KursaweFunction2(true);
+
+        List<GeneticOperator<RealIndividual>> geneticOperators = new ArrayList<>();
+        geneticOperators.add(new RealCrossAverage());
+        geneticOperators.add(new RealMutation(min, max));
+        geneticOperators.add(new RealPickRandom(min, max, 1));
+
+        MaxIterationsTerminationCondition terminationCondition = new MaxIterationsTerminationCondition(MAX_ITERATIONS);
+
+        SelectionMethod<RealIndividual> selectionMethod = new TournamentSelection(4);
+
+        PopulationInitialization<RealIndividual> initialization = new RandomRealInitialization(POPULATION_SIZE, min, max, dimensions);
+
+        //        FitnessCalculation<RealIndividual> fitnessCalculation = new NSGA2FitnessCalculation<RealIndividual>(objectiveFunctions);
+        //        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "run-nsga2/nsga2-", objectiveFunctions);
+
+        FitnessCalculation<RealIndividual> fitnessCalculation = new SPEA2FitnessCalculation<RealIndividual>(objectiveFunctions);
+        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "run-spea2/spea2", objectiveFunctions);
+
+        //        GeneticAlgorithm<RealIndividual> ga = new GeneticAlgorithm<>(geneticOperators, terminationCondition, selectionMethod,true, initialization, fitnessCalculation);
+        HAEA<RealIndividual> ga = new HAEA<>(geneticOperators, terminationCondition, selectionMethod, initialization, fitnessCalculation);
+        ga.setEvolutionInterceptor(evolutionInterceptor);
+
+        Population<RealIndividual> finalPop = ga.apply();
+
+        RealIndividual best = finalPop.getBest();
+        System.out.println("Value: " + best.toString() + " Fitness: " + best.getFitness() + " Value: " + Arrays.toString(best.getObjectiveValues()));
+    }
+
+    public static void schaffer(String args[]) {
+        int dimensions = 1;
+
+        Double[] min = new Double[dimensions];
+        Double[] max = new Double[dimensions];
+
+        int MAX_ITERATIONS = 100;
+        int POPULATION_SIZE = 100;
+
+        ObjectiveFunction[] objectiveFunctions = new ObjectiveFunction[2];
+
+        Arrays.fill(min, -5.0);
+        Arrays.fill(max, 5.0);
+        objectiveFunctions[0] = new KursaweFunction1(true);
+        objectiveFunctions[1] = new KursaweFunction2(true);
+
+        Arrays.fill(min, -10.0);
+        Arrays.fill(max, 10.0);
+        objectiveFunctions[0] = new Schaffer(true, 0);
+        objectiveFunctions[1] = new Schaffer(true, 2);
+
+        List<GeneticOperator<RealIndividual>> geneticOperators = new ArrayList<>();
+        geneticOperators.add(new RealCrossAverage());
+        geneticOperators.add(new RealMutation(min, max));
+        geneticOperators.add(new RealPickRandom(min, max, 1));
+
+        MaxIterationsTerminationCondition terminationCondition = new MaxIterationsTerminationCondition(MAX_ITERATIONS);
+
+        SelectionMethod<RealIndividual> selectionMethod = new TournamentSelection(4);
+
+        PopulationInitialization<RealIndividual> initialization = new RandomRealInitialization(POPULATION_SIZE, min, max, dimensions);
+
+        //        FitnessCalculation<RealIndividual> fitnessCalculation = new NSGA2FitnessCalculation<RealIndividual>(objectiveFunctions);
+        //        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "run-nsga2/nsga2-", objectiveFunctions);
+
+        FitnessCalculation<RealIndividual> fitnessCalculation = new SPEA2FitnessCalculation<RealIndividual>(objectiveFunctions);
+        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "run-spea2/spea2", objectiveFunctions);
+
+        //        GeneticAlgorithm<RealIndividual> ga = new GeneticAlgorithm<>(geneticOperators, terminationCondition, selectionMethod,true, initialization, fitnessCalculation);
+        HAEA<RealIndividual> ga = new HAEA<>(geneticOperators, terminationCondition, selectionMethod, initialization, fitnessCalculation);
+        ga.setEvolutionInterceptor(evolutionInterceptor);
+
+        Population<RealIndividual> finalPop = ga.apply();
+
+        RealIndividual best = finalPop.getBest();
+        System.out.println("Value: " + best.toString() + " Fitness: " + best.getFitness() + " Value: " + Arrays.toString(best.getObjectiveValues()));
+    }
+
+    public static void zitzlerDebThiele(String args[]) {
+        int dimensions = 3;
+
+        Double[] min = new Double[dimensions];
+        Double[] max = new Double[dimensions];
+
+        int MAX_ITERATIONS = 50;
+        int POPULATION_SIZE = 50;
+
+        ObjectiveFunction[] objectiveFunctions = new ObjectiveFunction[2];
+
+        Arrays.fill(min, -5.0);
+        Arrays.fill(max, 5.0);
+        objectiveFunctions[0] = new KursaweFunction1(true);
+        objectiveFunctions[1] = new KursaweFunction2(true);
+
+        Arrays.fill(min, 0.0);
+        Arrays.fill(max, 1.0);
+        objectiveFunctions[0] = new ZitzlerDebThiele.ZDT2_F1(true);
+        objectiveFunctions[1] = new ZitzlerDebThiele.ZDT2_F2(true);
+
+        List<GeneticOperator<RealIndividual>> geneticOperators = new ArrayList<>();
+        geneticOperators.add(new RealCrossAverage());
+        geneticOperators.add(new RealMutation(min, max));
+        geneticOperators.add(new RealPickRandom(min, max, 1));
+
+        MaxIterationsTerminationCondition terminationCondition = new MaxIterationsTerminationCondition(MAX_ITERATIONS);
+
+        SelectionMethod<RealIndividual> selectionMethod = new TournamentSelection(4);
+
+        PopulationInitialization<RealIndividual> initialization = new RandomRealInitialization(POPULATION_SIZE, min, max, dimensions);
+
+        //        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterFrameInterceptor<>(MAX_ITERATIONS / 5);
+
+        //        FitnessCalculation<RealIndividual> fitnessCalculation = new NSGA2FitnessCalculation<RealIndividual>(objectiveFunctions);
+        //        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "run-nsga2/nsga2-", objectiveFunctions);
+
+        FitnessCalculation<RealIndividual> fitnessCalculation = new SPEA2FitnessCalculation<RealIndividual>(objectiveFunctions);
+        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "run-spea2/spea2", objectiveFunctions);
+
+        //        GeneticAlgorithm<RealIndividual> ga = new GeneticAlgorithm<>(geneticOperators, terminationCondition, selectionMethod,true, initialization, fitnessCalculation);
+        HAEA<RealIndividual> ga = new HAEA<>(geneticOperators, terminationCondition, selectionMethod, initialization, fitnessCalculation);
+        ga.setEvolutionInterceptor(evolutionInterceptor);
+
+        Population<RealIndividual> finalPop = ga.apply();
+
+        RealIndividual best = finalPop.getBest();
+        System.out.println("Value: " + best.toString() + " Fitness: " + best.getFitness() + " Value: " + Arrays.toString(best.getObjectiveValues()));
+    }
+
+}
