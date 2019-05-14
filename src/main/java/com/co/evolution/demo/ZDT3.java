@@ -3,7 +3,7 @@ package com.co.evolution.demo;
 import com.co.evolution.algorithm.HAEA;
 import com.co.evolution.demo.problems.KursaweFunction1;
 import com.co.evolution.demo.problems.KursaweFunction2;
-import com.co.evolution.demo.problems.SchafferFunction;
+import com.co.evolution.demo.problems.ZitzlerDebThiele3;
 import com.co.evolution.fitness.SPEA2FitnessCalculation;
 import com.co.evolution.geneticoperators.RealCrossAverage;
 import com.co.evolution.geneticoperators.RealMutation;
@@ -25,20 +25,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Schaffer {
+public class ZDT3 {
 
     public static void main(String args[]) {
-        schaffer();
+        zitzlerDebThiele();
     }
 
-    public static void schaffer() {
-        int dimensions = 1;
+    public static void zitzlerDebThiele() {
+        int dimensions = 3;
 
         Double[] min = new Double[dimensions];
         Double[] max = new Double[dimensions];
 
-        int MAX_ITERATIONS = 100;
-        int POPULATION_SIZE = 100;
+        int MAX_ITERATIONS = 50;
+        int POPULATION_SIZE = 50;
 
         ObjectiveFunction[] objectiveFunctions = new ObjectiveFunction[2];
 
@@ -47,10 +47,10 @@ public class Schaffer {
         objectiveFunctions[0] = new KursaweFunction1(true);
         objectiveFunctions[1] = new KursaweFunction2(true);
 
-        Arrays.fill(min, -10.0);
-        Arrays.fill(max, 10.0);
-        objectiveFunctions[0] = new SchafferFunction(true, 0);
-        objectiveFunctions[1] = new SchafferFunction(true, 2);
+        Arrays.fill(min, 0.0);
+        Arrays.fill(max, 1.0);
+        objectiveFunctions[0] = new ZitzlerDebThiele3.ZDT2_F1(true);
+        objectiveFunctions[1] = new ZitzlerDebThiele3.ZDT2_F2(true);
 
         List<GeneticOperator<RealIndividual>> geneticOperators = new ArrayList<>();
         geneticOperators.add(new RealCrossAverage());
@@ -62,6 +62,8 @@ public class Schaffer {
         SelectionMethod<RealIndividual> selectionMethod = new TournamentSelection(4);
 
         PopulationInitialization<RealIndividual> initialization = new RandomRealInitialization(POPULATION_SIZE, min, max, dimensions);
+
+        //        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterFrameInterceptor<>(MAX_ITERATIONS / 5);
 
         //        FitnessCalculation<RealIndividual> fitnessCalculation = new NSGA2FitnessCalculation<RealIndividual>(objectiveFunctions);
         //        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "run-nsga2/nsga2-", objectiveFunctions);
@@ -78,6 +80,5 @@ public class Schaffer {
         RealIndividual best = finalPop.getBest();
         System.out.println("Value: " + best.toString() + " Fitness: " + best.getFitness() + " Value: " + Arrays.toString(best.getObjectiveValues()));
     }
-
 
 }

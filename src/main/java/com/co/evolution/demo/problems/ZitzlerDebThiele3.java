@@ -3,7 +3,7 @@ package com.co.evolution.demo.problems;
 import com.co.evolution.individual.RealIndividual;
 import com.co.evolution.model.ObjectiveFunction;
 
-public class ZitzlerDebThiele {
+public class ZitzlerDebThiele3 {
 
     public static class ZDT3_F1 extends ObjectiveFunction<RealIndividual> {
         public ZDT3_F1(boolean minimize) {
