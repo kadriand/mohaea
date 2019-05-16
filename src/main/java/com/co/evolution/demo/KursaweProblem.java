@@ -28,7 +28,6 @@ public class KursaweProblem {
 
     public static void main(String args[]) {
         kursaweFunction();
-
     }
 
     public static void kursaweFunction() {

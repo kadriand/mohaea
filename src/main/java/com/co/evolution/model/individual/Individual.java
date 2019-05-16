@@ -18,6 +18,8 @@ public interface Individual extends Comparable<Individual> {
 
     double getPenalization();
 
+    void setPenalization(double penalization);
+
     int getHowManyDominateMe();
 
     void setHowManyDominateMe(int howManyIDominate);

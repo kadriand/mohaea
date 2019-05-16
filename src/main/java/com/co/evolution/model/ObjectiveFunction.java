@@ -1,11 +1,12 @@
 package com.co.evolution.model;
 
+import com.co.evolution.model.individual.Individual;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @AllArgsConstructor
-public abstract class ObjectiveFunction<T> {
+public abstract class ObjectiveFunction<T extends Individual> {
 
     @Getter
     @Setter
@@ -15,6 +16,7 @@ public abstract class ObjectiveFunction<T> {
 
     /**
      * Consider whether the objective must be minimized or maximizec
+     *
      * @param individual
      * @return
      */

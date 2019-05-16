@@ -3,6 +3,7 @@ package com.co.evolution.fitness;
 import com.co.evolution.fitness.fnds.NSGA2FastNonDominatedSorting;
 import com.co.evolution.model.FitnessCalculation;
 import com.co.evolution.model.ObjectiveFunction;
+import com.co.evolution.model.Penalization;
 import com.co.evolution.model.individual.Individual;
 import lombok.Getter;
 
@@ -14,9 +15,15 @@ public class NSGA2FitnessCalculation<T extends Individual> implements FitnessCal
 
     @Getter
     protected ObjectiveFunction<T>[] objectiveFunctions;
+    protected Penalization<T> penalization;
 
-    public NSGA2FitnessCalculation(ObjectiveFunction<T>[] objectiveFunctions) {
+    public NSGA2FitnessCalculation(ObjectiveFunction<T>... objectiveFunctions) {
         this.objectiveFunctions = objectiveFunctions;
+    }
+
+    public NSGA2FitnessCalculation(Penalization<T> penalization, ObjectiveFunction<T>... objectiveFunctions) {
+        this.objectiveFunctions = objectiveFunctions;
+        this.penalization = penalization;
     }
 
     /**
@@ -32,8 +39,8 @@ public class NSGA2FitnessCalculation<T extends Individual> implements FitnessCal
         double density = 1.0 / (crowdingDistance + 2.0);
         if (density > 1)
             System.out.println(density);
-        double penalization = individual.getPenalization();
-        return individual.getParetoRank() + density + penalization;
+        double individualPenalization = this.penalization == null ? 0.0 : this.penalization.apply(individual);
+        return individual.getParetoRank() + density + individualPenalization;
     }
 
     @Override

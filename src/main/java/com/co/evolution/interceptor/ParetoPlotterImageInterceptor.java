@@ -18,7 +18,7 @@ public class ParetoPlotterImageInterceptor<T extends Individual> implements Evol
     private String filePrefix;
     private double[] functionsSigns;
 
-    public ParetoPlotterImageInterceptor(int generationsGap, String prefix, ObjectiveFunction[] objectiveFunctions) {
+    public ParetoPlotterImageInterceptor(int generationsGap, String prefix, ObjectiveFunction... objectiveFunctions) {
         this.functionsSigns = new double[objectiveFunctions.length];
         for (int i = 0; i < objectiveFunctions.length; i++)
             this.functionsSigns[i] = objectiveFunctions[i].isMinimize() ? 1.0 : -1.0;

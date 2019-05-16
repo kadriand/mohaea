@@ -26,6 +26,10 @@ public abstract class IndividualImpl<T> implements Individual {
     @Getter
     private int paretoRank;
 
+    @Setter
+    @Getter
+    private double penalization;
+
     @Getter
     private List<Double> diversityMeasures = new ArrayList<>();
 

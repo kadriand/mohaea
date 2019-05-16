@@ -42,8 +42,8 @@ public class HAEA<T extends Individual> extends Algorithm<T> {
 
             for (int i = 0; i < populationSize; i++) {
                 T actualIndividual = pop.get(i);
-                int selectedOGIndex = RandomUtils.nextIntegerWithDefinedDistribution(operatorsProbabilities[i]);
-                GeneticOperator<T> selectedGO = geneticOperators.get(selectedOGIndex);
+                int selectedGOIndex = RandomUtils.nextIntegerWithDefinedDistribution(operatorsProbabilities[i]);
+                GeneticOperator<T> selectedGO = geneticOperators.get(selectedGOIndex);
                 List<T> parents = new ArrayList<>();
                 parents.add(actualIndividual);
                 if (selectedGO.getCardinal() > 1) {
@@ -52,10 +52,10 @@ public class HAEA<T extends Individual> extends Algorithm<T> {
                 }
 
                 List<T> children = selectedGO.apply(parents);
-                int functionsSize = fitnessCalculation.getObjectiveFunctions().length;
+                int objectivesSize = fitnessCalculation.getObjectiveFunctions().length;
                 for (T child : children) {
-                    child.setObjectiveValues(new double[functionsSize]);
-                    for (int j = 0; j < functionsSize; j++)
+                    child.setObjectiveValues(new double[objectivesSize]);
+                    for (int j = 0; j < objectivesSize; j++)
                         child.getObjectiveValues()[j] = fitnessCalculation.getObjectiveFunctions()[j].compute(child);
                     child.setFitness(fitnessCalculation.calculate(child, pop));
                 }
@@ -66,9 +66,9 @@ public class HAEA<T extends Individual> extends Algorithm<T> {
 
                 T childrenBest = childrenPop.getBest();
                 if (childrenBest == actualIndividual || childrenBest.getFitness() == actualIndividual.getFitness()) //punish
-                    modifyProbabilities(-1, operatorsProbabilities[i], selectedOGIndex);
+                    modifyProbabilities(-1, operatorsProbabilities[i], selectedGOIndex);
                 else  //reward
-                    modifyProbabilities(1, operatorsProbabilities[i], selectedOGIndex);
+                    modifyProbabilities(1, operatorsProbabilities[i], selectedGOIndex);
                 newPop.add(childrenBest);
             }
 

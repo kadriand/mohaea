@@ -26,11 +26,6 @@ public class RealIndividual extends IndividualImpl<Double[]> {
         return ri;
     }
 
-    @Override
-    public double getPenalization() {
-        return 0;
-    }
-
     public String toString() {
         return Arrays.toString(get());
     }
