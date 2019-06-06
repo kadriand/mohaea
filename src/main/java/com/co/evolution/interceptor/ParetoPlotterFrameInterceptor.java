@@ -7,6 +7,7 @@ import com.co.evolution.model.individual.Individual;
 import com.co.evolution.util.ParetoPlotter;
 
 import javax.swing.*;
+import java.util.Map;
 
 public class ParetoPlotterFrameInterceptor<T extends Individual> extends EvolutionInterceptor<T> {
 
@@ -20,7 +21,7 @@ public class ParetoPlotterFrameInterceptor<T extends Individual> extends Evoluti
     }
 
     @Override
-    public void apply(Population<T> population, int generation) {
+    public void apply(Population<T> population, int generation, Map<T, double[]> operatorsRates) {
         ParetoPlotter<T> paretoPlotter = new ParetoPlotter<>("Iteration " + generation, population, this.functionsSigns);
         JFrame paretoFrame = paretoPlotter.toJFrame("Plot Iteration " + generation);
         paretoFrame.setVisible(true);

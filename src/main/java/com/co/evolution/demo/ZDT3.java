@@ -58,11 +58,10 @@ public class ZDT3 {
 
         //        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterFrameInterceptor<>(MAX_ITERATIONS / 5);
 
-//        FitnessCalculation<RealIndividual> fitnessCalculation = new NSGA2FitnessCalculation<RealIndividual>(objectiveFunctions);
-//        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "zdt3/nsga2-", objectiveFunctions);
-
-                FitnessCalculation<RealIndividual> fitnessCalculation = new SPEA2FitnessCalculation<RealIndividual>(objectiveFunctions);
-                EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "zdt3/spea2-", objectiveFunctions);
+        //        FitnessCalculation<RealIndividual> fitnessCalculation = new NSGA2FitnessCalculation<RealIndividual>(objectiveFunctions);
+        //        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "zdt3/nsga2-", objectiveFunctions);
+        FitnessCalculation<RealIndividual> fitnessCalculation = new SPEA2FitnessCalculation<RealIndividual>(objectiveFunctions);
+        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "zdt3/spea2-", objectiveFunctions);
 
         //        GeneticAlgorithm<RealIndividual> ga = new GeneticAlgorithm<>(geneticOperators, terminationCondition, selectionMethod,true, initialization, fitnessCalculation);
         HAEA<RealIndividual> ga = new HAEA<>(geneticOperators, terminationCondition, selectionMethod, initialization, fitnessCalculation);

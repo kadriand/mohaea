@@ -6,10 +6,12 @@ import com.co.evolution.model.Population;
 import com.co.evolution.model.PopulationInitialization;
 import com.co.evolution.util.RandomUtils;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @AllArgsConstructor
 public class RandomRealInitialization implements PopulationInitialization<RealIndividual> {
 
+    @Getter
     private int size;
     private Double[] min, max;
     private int dimensions;

@@ -16,7 +16,6 @@ public class TournamentSelection<T extends Individual> implements SelectionMetho
 
     @Override
     public void init(List<T> individuals) {
-
     }
 
     @Override
@@ -26,7 +25,7 @@ public class TournamentSelection<T extends Individual> implements SelectionMetho
 
         for (int i = 0; i < tournamentRounds; i++) {
             HashSet<Integer> hs = RandomUtils.getDifferentRandomIntegers(max, rivalsSize);
-            List<Integer>  indexes = new ArrayList<>(hs);
+            List<Integer> indexes = new ArrayList<>(hs);
             T winner = null;
             for (Integer index : indexes)
                 if (population.get(index).isBetter(winner))

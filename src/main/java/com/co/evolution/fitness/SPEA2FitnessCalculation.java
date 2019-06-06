@@ -42,7 +42,7 @@ public class SPEA2FitnessCalculation<T extends Individual> implements FitnessCal
     @Override
     public double computeIndividualFitness(T individual, List<T> population) {
         if (!population.contains(individual))
-            paretoRanks.compareExternalWithPopulation(individual);
+            paretoRanks.fillExternalIndividualDiversityMeasures(individual);
 
         Arrays.sort(individual.getDiversityMeasures());
         double sigmaSquare = individual.getDiversityMeasures()[kthNeighbor];

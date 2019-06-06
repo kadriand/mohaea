@@ -12,7 +12,11 @@ import com.co.evolution.model.individual.Individual;
 import com.co.evolution.util.RandomUtils;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.DoubleStream;
 
 public class HAEA<T extends Individual> extends Algorithm<T> {
 
@@ -23,73 +27,80 @@ public class HAEA<T extends Individual> extends Algorithm<T> {
     @Override
     public Population<T> apply() {
         int iteration = 1;
-        Population<T> population = initialization.init(fitnessCalculation);
-
-        int populationSize = population.size();
-        T best = population.getBest();
+        Population<T> parentsPopulation = initialization.init(fitnessCalculation);
+        T best = parentsPopulation.getBest();
         T bestBefore = null;
 
-        double[][] operatorsProbabilities = new double[populationSize][geneticOperators.size()];
-        for (int i = 0; i < populationSize; i++)
-            for (int j = 0; j < geneticOperators.size(); j++)
-                operatorsProbabilities[i][j] = 1.0 / geneticOperators.size();
+        Map<T, double[]> operatorsRates = new HashMap<>();
+        double[] defaultProbabilities = new double[geneticOperators.size()];
+        for (int p = 0; p < geneticOperators.size(); p++)
+            defaultProbabilities[p] = 1.0 / geneticOperators.size();
+
+        parentsPopulation.forEach(individual -> operatorsRates.put(individual, defaultProbabilities.clone()));
 
         while (terminationCondition.keepIteratingCondition(iteration, best, bestBefore)) {
-            evolutionInterceptor.intercept(population, iteration, false);
+            evolutionInterceptor.intercept(parentsPopulation, iteration, operatorsRates, false);
             Population<T> newPopulation = new Population<>();
-            selectionMethod.init(population);
+            selectionMethod.init(parentsPopulation);
 
-            for (T individual : population) {
-                int individualIdx = population.indexOf(individual);
-                int genetOperatorRouletteIdx = RandomUtils.nextIntegerWithDefinedDistribution(operatorsProbabilities[individualIdx]);
+            for (T parent : parentsPopulation) {
+                double[] parentOperatorsRates = operatorsRates.get(parent);
+                int genetOperatorRouletteIdx = RandomUtils.nextIntegerWithDefinedDistribution(parentOperatorsRates);
                 GeneticOperator<T> geneticOperator = geneticOperators.get(genetOperatorRouletteIdx);
                 List<T> parents = new ArrayList<>();
-                parents.add(individual);
+                parents.add(parent);
                 if (geneticOperator.getCardinal() > 1) {
-                    List<T> selectedParents = selectionMethod.select(population, geneticOperator.getCardinal() - 1);
+                    List<T> selectedParents = selectionMethod.select(parentsPopulation, geneticOperator.getCardinal() - 1);
                     parents.addAll(selectedParents);
                 }
 
                 List<T> children = geneticOperator.apply(parents);
                 for (T child : children) {
                     child.setObjectiveValues(fitnessCalculation.computeObjectives(child));
-                    child.setFitness(fitnessCalculation.computeIndividualFitness(child, population));
+                    child.setFitness(fitnessCalculation.computeIndividualFitness(child, parentsPopulation));
                 }
+                T bestChild = new Population<>(children).getBest();
 
-                Population<T> childrenTempPopulation = new Population<>(children);
-                T childrenBest = childrenTempPopulation.getBest();
-                double deltaSign = childrenBest.isBetter(individual) ? 1.0 : -1.0;//reward: punish
-                modifyProbabilities(deltaSign, operatorsProbabilities[individualIdx], genetOperatorRouletteIdx);
-                newPopulation.add(childrenBest);
+                boolean reward = bestChild.isBetter(parent);  // reward: punish
+                updateRates(reward, parentOperatorsRates, genetOperatorRouletteIdx);
+
+                operatorsRates.put(bestChild, parentOperatorsRates.clone());
+                newPopulation.add(bestChild);
             }
 
-            population = newPopulation;
+            Population<T> population = new Population<>(parentsPopulation);
+            population.addAll(newPopulation);
             fitnessCalculation.computePopulationFitness(population);
+            population.sort(Comparator.comparing(Individual::getFitness));
+
+            int size = initialization.getSize();
+            for (int i = 0; i < size; i++) {
+                T individualToRemove = population.remove(size);
+                operatorsRates.remove(individualToRemove);
+            }
+            parentsPopulation = population;
+
             bestBefore = best;
-            best = population.getBest();
+            best = parentsPopulation.getBest();
             iteration++;
         }
-        evolutionInterceptor.intercept(population, 0, true);
+        evolutionInterceptor.intercept(parentsPopulation, 0, operatorsRates, false);
 
-        population.stream().forEach(individual -> {
+        for (T individual : parentsPopulation)
             for (int i = 0; i < fitnessCalculation.getObjectiveFunctions().length; i++)
                 if (!fitnessCalculation.getObjectiveFunctions()[i].isMinimize())
-                    individual.getObjectiveValues()[i] = individual.getObjectiveValues()[i] * -1.0;
-        });
+                    individual.getObjectiveValues()[i] *= -1.0;
 
-        return population;
+        return parentsPopulation;
     }
 
-    private void modifyProbabilities(double sign, double[] prob, int geneticOperatorIdx) {
+    private void updateRates(boolean reward, double[] rates, int geneticOperatorIdx) {
         double delta = RandomUtils.nextDouble(0, 1);
-        delta *= sign;
-        prob[geneticOperatorIdx] += delta;
-        prob[geneticOperatorIdx] = prob[geneticOperatorIdx] < 0 ? prob[geneticOperatorIdx] * -1 : prob[geneticOperatorIdx];
-        double sum = 0.0;
-        for (double aProb : prob)
-            sum += aProb;
-        for (int i = 0; i < prob.length; i++)
-            prob[i] /= sum;
+        double sign = reward ? 1.0 : -1.0;
+        rates[geneticOperatorIdx] *= (1.0 + delta * sign);
+        double sum = DoubleStream.of(rates).sum();
+        for (int i = 0; i < rates.length; i++)
+            rates[i] /= sum;
     }
 
 

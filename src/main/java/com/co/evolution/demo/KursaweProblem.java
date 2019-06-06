@@ -3,7 +3,7 @@ package com.co.evolution.demo;
 import com.co.evolution.algorithm.HAEA;
 import com.co.evolution.demo.problems.KursaweFunction1;
 import com.co.evolution.demo.problems.KursaweFunction2;
-import com.co.evolution.fitness.NSGA2FitnessCalculation;
+import com.co.evolution.fitness.SPEA2FitnessCalculation;
 import com.co.evolution.geneticoperators.RealCrossAverage;
 import com.co.evolution.geneticoperators.RealMutation;
 import com.co.evolution.geneticoperators.RealPickRandom;
@@ -57,10 +57,10 @@ public class KursaweProblem {
 
         PopulationInitialization<RealIndividual> initialization = new RandomRealInitialization(POPULATION_SIZE, min, max, dimensions);
 
-        FitnessCalculation<RealIndividual> fitnessCalculation = new NSGA2FitnessCalculation<RealIndividual>(objectiveFunctions);
-        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "kur/nsga2-", objectiveFunctions);
-//                FitnessCalculation<RealIndividual> fitnessCalculation = new SPEA2FitnessCalculation<RealIndividual>(objectiveFunctions);
-//                EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "kur/spea2", objectiveFunctions);
+//        FitnessCalculation<RealIndividual> fitnessCalculation = new NSGA2FitnessCalculation<RealIndividual>(objectiveFunctions);
+//        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "kur/nsga2-", objectiveFunctions);
+                FitnessCalculation<RealIndividual> fitnessCalculation = new SPEA2FitnessCalculation<RealIndividual>(objectiveFunctions);
+                EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "kur/spea2", objectiveFunctions);
 
         //        GeneticAlgorithm<RealIndividual> ga = new GeneticAlgorithm<>(geneticOperators, terminationCondition, selectionMethod,true, initialization, fitnessCalculation);
         HAEA<RealIndividual> ga = new HAEA<>(geneticOperators, terminationCondition, selectionMethod, initialization, fitnessCalculation);

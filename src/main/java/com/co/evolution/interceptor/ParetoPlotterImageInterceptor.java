@@ -5,15 +5,21 @@ import com.co.evolution.model.ObjectiveFunction;
 import com.co.evolution.model.Population;
 import com.co.evolution.model.individual.Individual;
 import com.co.evolution.util.ParetoPlotter;
+import lombok.Setter;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Map;
 
 public class ParetoPlotterImageInterceptor<T extends Individual> extends EvolutionInterceptor<T> {
 
     private String imagesPathPrefix;
     private double[] functionsSigns;
+    @Setter
+    private String fieldSeparator = ",";
+    @Setter
+    private String textExtension = "csv";
 
     public ParetoPlotterImageInterceptor(int generationsGap, String prefix, ObjectiveFunction... objectiveFunctions) {
         this.functionsSigns = new double[objectiveFunctions.length];
@@ -24,7 +30,7 @@ public class ParetoPlotterImageInterceptor<T extends Individual> extends Evoluti
     }
 
     @Override
-    public void apply(Population<T> population, int generation) {
+    public void apply(Population<T> population, int generation, Map<T, double[]> operatorsRates) {
         System.out.println("Value: " + population.getBest().toString() + " Fitness: " + population.getBest().getFitness() + " Value: " + Arrays.toString(population.getBest().getObjectiveValues()));
         ParetoPlotter<T> paretoPlotter = new ParetoPlotter<>("Iteration " + generation, population, this.functionsSigns);
         File scatterPlotFile = paretoPlotter.toFile(imagesPathPrefix + "iteration-" + generation);
@@ -32,23 +38,23 @@ public class ParetoPlotterImageInterceptor<T extends Individual> extends Evoluti
         try {
             System.out.println("Pareto fronts stored in " + scatterPlotFile.getCanonicalPath());
 
-            File pointsFile = new File(String.format("output/%siteration-%s.csv", imagesPathPrefix, generation));
+            File pointsFile = new File(String.format("output/%siteration-%s.%s", imagesPathPrefix, generation, textExtension));
             pointsFile.getParentFile().mkdirs();
-            StringBuilder solventInfo = new StringBuilder();
-            solventInfo
+            StringBuilder generationInfo = new StringBuilder();
+            generationInfo
                     .append("objective1")
-                    .append(",objective2")
-                    .append(",fitness")
-                    .append(",rank")
-                    .append(",penalization");
-            population.forEach(individual -> solventInfo
+                    .append(fieldSeparator + "objective2")
+                    .append(fieldSeparator + "fitness")
+                    .append(fieldSeparator + "rank")
+                    .append(fieldSeparator + "penalization");
+            population.forEach(individual -> generationInfo
                     .append("\n" + individual.getObjectiveValues()[0])
-                    .append("," + individual.getObjectiveValues()[1])
-                    .append("," + individual.getFitness())
-                    .append("," + individual.getParetoRank())
-                    .append("," + individual.getPenalization())
+                    .append(fieldSeparator + individual.getObjectiveValues()[1])
+                    .append(fieldSeparator + individual.getFitness())
+                    .append(fieldSeparator + individual.getParetoRank())
+                    .append(fieldSeparator + individual.getPenalization())
             );
-            Files.write(pointsFile.toPath(), solventInfo.toString().getBytes());
+            Files.write(pointsFile.toPath(), generationInfo.toString().getBytes());
             System.out.println("Pareto points stored in " + pointsFile.getCanonicalPath());
         } catch (Exception e) {
             e.printStackTrace();

@@ -10,18 +10,19 @@ public class SPEA2FastNonDominatedSorting<T extends Individual> extends FastNonD
         super(population, objectivesSize);
     }
 
-    public void compareExternalWithPopulation(T comparisonIndividual) {
+    public void fillExternalIndividualDiversityMeasures(T comparisonIndividual) {
         double[] comparisonObjectives = comparisonIndividual.getObjectiveValues();
         int howManyDominateMe = 0;
         int until = population.size();
         comparisonIndividual.setDiversityMeasures(new double[population.size()]);
+        double adjustmentFactor = 1 + 1 / population.size();
         for (int j = 0; j < until; ++j) {
             T loopIndividual = population.get(j);
             int comp = dominanceComparison(comparisonObjectives, loopIndividual.getObjectiveValues());
             if (comp == 1)
                 howManyDominateMe++;
             double distance = euclideanDistance(comparisonIndividual, loopIndividual);
-            comparisonIndividual.getDiversityMeasures()[j] = distance;
+            comparisonIndividual.getDiversityMeasures()[j] = distance*adjustmentFactor;
         }
         comparisonIndividual.setHowManyDominateMe(howManyDominateMe);
     }
@@ -35,7 +36,6 @@ public class SPEA2FastNonDominatedSorting<T extends Individual> extends FastNonD
         for (int j = from; j < populationSize; ++j) {
             T individualDominance = population.get(j);
             int comp = dominanceComparison(comparisonObjectives, individualDominance.getObjectiveValues());
-
             if (comp == -1)
                 pushToDominateList(individualIdx, j);
             else if (comp == +1)
