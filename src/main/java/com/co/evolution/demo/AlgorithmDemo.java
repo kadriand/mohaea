@@ -49,7 +49,7 @@ public class AlgorithmDemo {
         //GeneticAlgorithm<RealIndividual> ga = new GeneticAlgorithm<>(geneticOperators, terminationCondition, selectionMethod,true, initialization, fitnessCalculation);
 //        HAEA<RealIndividual> ga = new HAEA<>(geneticOperators, terminationCondition, selectionMethod, true, initialization, fitnessCalculation);
 
-//        List<RealIndividual> finalPop = ga.apply();
+//        List<RealIndividual> finalPop = ga.compute();
 //
 //        RealIndividual best = ga.findBest(finalPop);
 

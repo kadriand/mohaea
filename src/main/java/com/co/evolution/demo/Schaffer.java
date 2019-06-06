@@ -1,10 +1,8 @@
 package com.co.evolution.demo;
 
 import com.co.evolution.algorithm.HAEA;
-import com.co.evolution.demo.problems.KursaweFunction1;
-import com.co.evolution.demo.problems.KursaweFunction2;
 import com.co.evolution.demo.problems.SchafferFunction;
-import com.co.evolution.fitness.SPEA2FitnessCalculation;
+import com.co.evolution.fitness.NSGA2FitnessCalculation;
 import com.co.evolution.geneticoperators.RealCrossAverage;
 import com.co.evolution.geneticoperators.RealMutation;
 import com.co.evolution.geneticoperators.RealPickRandom;
@@ -42,11 +40,6 @@ public class Schaffer {
 
         ObjectiveFunction[] objectiveFunctions = new ObjectiveFunction[2];
 
-        Arrays.fill(min, -5.0);
-        Arrays.fill(max, 5.0);
-        objectiveFunctions[0] = new KursaweFunction1(true);
-        objectiveFunctions[1] = new KursaweFunction2(true);
-
         Arrays.fill(min, -10.0);
         Arrays.fill(max, 10.0);
         objectiveFunctions[0] = new SchafferFunction(true, 0);
@@ -63,11 +56,10 @@ public class Schaffer {
 
         PopulationInitialization<RealIndividual> initialization = new RandomRealInitialization(POPULATION_SIZE, min, max, dimensions);
 
-        //        FitnessCalculation<RealIndividual> fitnessCalculation = new NSGA2FitnessCalculation<RealIndividual>(objectiveFunctions);
-        //        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "run-nsga2/nsga2-", objectiveFunctions);
-
-        FitnessCalculation<RealIndividual> fitnessCalculation = new SPEA2FitnessCalculation<RealIndividual>(objectiveFunctions);
-        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "run-spea2/spea2", objectiveFunctions);
+                FitnessCalculation<RealIndividual> fitnessCalculation = new NSGA2FitnessCalculation<RealIndividual>(objectiveFunctions);
+                EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "scha/nsga2-", objectiveFunctions);
+//        FitnessCalculation<RealIndividual> fitnessCalculation = new SPEA2FitnessCalculation<RealIndividual>(objectiveFunctions);
+//        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "scha/spea2-", objectiveFunctions);
 
         //        GeneticAlgorithm<RealIndividual> ga = new GeneticAlgorithm<>(geneticOperators, terminationCondition, selectionMethod,true, initialization, fitnessCalculation);
         HAEA<RealIndividual> ga = new HAEA<>(geneticOperators, terminationCondition, selectionMethod, initialization, fitnessCalculation);

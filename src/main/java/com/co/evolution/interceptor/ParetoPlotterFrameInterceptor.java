@@ -7,12 +7,9 @@ import com.co.evolution.model.individual.Individual;
 import com.co.evolution.util.ParetoPlotter;
 
 import javax.swing.*;
-import java.util.List;
-import java.util.stream.Collectors;
 
-public class ParetoPlotterFrameInterceptor<T extends Individual> implements EvolutionInterceptor<T> {
+public class ParetoPlotterFrameInterceptor<T extends Individual> extends EvolutionInterceptor<T> {
 
-    private int generationsGap;
     private double[] functionsSigns;
 
     public ParetoPlotterFrameInterceptor(int generationsGap, ObjectiveFunction[] objectiveFunctions) {
@@ -23,20 +20,9 @@ public class ParetoPlotterFrameInterceptor<T extends Individual> implements Evol
     }
 
     @Override
-    public void apply(int generation, Population<T> population) {
-        if (generation % generationsGap != 0 && generation != 1)
-            return;
+    public void apply(Population<T> population, int generation) {
         ParetoPlotter<T> paretoPlotter = new ParetoPlotter<>("Iteration " + generation, population, this.functionsSigns);
         JFrame paretoFrame = paretoPlotter.toJFrame("Plot Iteration " + generation);
-        paretoFrame.setVisible(true);
-        paretoFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-    }
-
-    @Override
-    public void apply(Population<T> population) {
-        List<T> populationList = population.stream().filter(t -> t.getParetoRank() == 0).collect(Collectors.toList());
-        ParetoPlotter<T> paretoPlotter = new ParetoPlotter<>("Last Iteration", populationList, this.functionsSigns);
-        JFrame paretoFrame = paretoPlotter.toJFrame("Plot last iteration ");
         paretoFrame.setVisible(true);
         paretoFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }

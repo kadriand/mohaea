@@ -12,7 +12,7 @@ public class MaxIterationsTerminationCondition<T extends Individual> implements 
     }
 
     @Override
-    public boolean getCondition(int actualIteration, T bestIndividual, T bestBefore) {
+    public boolean keepIteratingCondition(int actualIteration, T bestIndividual, T bestBefore) {
         return actualIteration <= maxIteration;
     }
 }

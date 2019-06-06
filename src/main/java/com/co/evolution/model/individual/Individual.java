@@ -1,8 +1,6 @@
 package com.co.evolution.model.individual;
 
-import java.util.List;
-
-public interface Individual extends Comparable<Individual> {
+public interface Individual {
 
     double getFitness();
 
@@ -20,14 +18,17 @@ public interface Individual extends Comparable<Individual> {
 
     void setPenalization(double penalization);
 
+    boolean isFeasible();
+
     int getHowManyDominateMe();
 
     void setHowManyDominateMe(int howManyIDominate);
 
-    List<Double> getDiversityMeasures();
+    double[] getDiversityMeasures();
 
-    @Override
-    int compareTo(Individual individual);
+    void setDiversityMeasures(double[] measures);
+
+    boolean isBetter(Individual individual);
 
     @Override
     String toString();

@@ -23,10 +23,10 @@ public class HAEA<T extends Individual> extends Algorithm<T> {
     @Override
     public Population<T> apply() {
         int iteration = 1;
-        Population<T> pop = initialization.init(fitnessCalculation);
+        Population<T> population = initialization.init(fitnessCalculation);
 
-        int populationSize = pop.size();
-        T best = pop.getBest();
+        int populationSize = population.size();
+        T best = population.getBest();
         T bestBefore = null;
 
         double[][] operatorsProbabilities = new double[populationSize][geneticOperators.size()];
@@ -34,76 +34,62 @@ public class HAEA<T extends Individual> extends Algorithm<T> {
             for (int j = 0; j < geneticOperators.size(); j++)
                 operatorsProbabilities[i][j] = 1.0 / geneticOperators.size();
 
+        while (terminationCondition.keepIteratingCondition(iteration, best, bestBefore)) {
+            evolutionInterceptor.intercept(population, iteration, false);
+            Population<T> newPopulation = new Population<>();
+            selectionMethod.init(population);
 
-        while (terminationCondition.getCondition(iteration, best, bestBefore)) {
-            evolutionInterceptor.apply(iteration, pop);
-            Population<T> newPop = new Population<>();
-            selectionMethod.init(pop);
-
-            for (int i = 0; i < populationSize; i++) {
-                T actualIndividual = pop.get(i);
-                int selectedGOIndex = RandomUtils.nextIntegerWithDefinedDistribution(operatorsProbabilities[i]);
-                GeneticOperator<T> selectedGO = geneticOperators.get(selectedGOIndex);
+            for (T individual : population) {
+                int individualIdx = population.indexOf(individual);
+                int genetOperatorRouletteIdx = RandomUtils.nextIntegerWithDefinedDistribution(operatorsProbabilities[individualIdx]);
+                GeneticOperator<T> geneticOperator = geneticOperators.get(genetOperatorRouletteIdx);
                 List<T> parents = new ArrayList<>();
-                parents.add(actualIndividual);
-                if (selectedGO.getCardinal() > 1) {
-                    List<T> selectedParents = selectionMethod.select(pop, selectedGO.getCardinal() - 1);
+                parents.add(individual);
+                if (geneticOperator.getCardinal() > 1) {
+                    List<T> selectedParents = selectionMethod.select(population, geneticOperator.getCardinal() - 1);
                     parents.addAll(selectedParents);
                 }
 
-                List<T> children = selectedGO.apply(parents);
-                int objectivesSize = fitnessCalculation.getObjectiveFunctions().length;
+                List<T> children = geneticOperator.apply(parents);
                 for (T child : children) {
-                    child.setObjectiveValues(new double[objectivesSize]);
-                    for (int j = 0; j < objectivesSize; j++)
-                        child.getObjectiveValues()[j] = fitnessCalculation.getObjectiveFunctions()[j].compute(child);
-                    child.setFitness(fitnessCalculation.calculate(child, pop));
+                    child.setObjectiveValues(fitnessCalculation.computeObjectives(child));
+                    child.setFitness(fitnessCalculation.computeIndividualFitness(child, population));
                 }
 
-                Population<T> childrenPop = new Population<>();
-                childrenPop.addAll(children);
-                childrenPop.add(actualIndividual);
-
-                T childrenBest = childrenPop.getBest();
-                if (childrenBest == actualIndividual || childrenBest.getFitness() == actualIndividual.getFitness()) //punish
-                    modifyProbabilities(-1, operatorsProbabilities[i], selectedGOIndex);
-                else  //reward
-                    modifyProbabilities(1, operatorsProbabilities[i], selectedGOIndex);
-                newPop.add(childrenBest);
+                Population<T> childrenTempPopulation = new Population<>(children);
+                T childrenBest = childrenTempPopulation.getBest();
+                double deltaSign = childrenBest.isBetter(individual) ? 1.0 : -1.0;//reward: punish
+                modifyProbabilities(deltaSign, operatorsProbabilities[individualIdx], genetOperatorRouletteIdx);
+                newPopulation.add(childrenBest);
             }
 
-            pop = newPop;
-            fitnessCalculation.newGenerationApply(pop);
-            for (T individual : pop)
-                individual.setFitness(fitnessCalculation.calculate(individual, pop));
-
+            population = newPopulation;
+            fitnessCalculation.computePopulationFitness(population);
             bestBefore = best;
-            best = pop.getBest();
+            best = population.getBest();
             iteration++;
         }
-        evolutionInterceptor.apply(pop);
+        evolutionInterceptor.intercept(population, 0, true);
 
-        pop.stream().forEach(individual -> {
+        population.stream().forEach(individual -> {
             for (int i = 0; i < fitnessCalculation.getObjectiveFunctions().length; i++)
                 if (!fitnessCalculation.getObjectiveFunctions()[i].isMinimize())
                     individual.getObjectiveValues()[i] = individual.getObjectiveValues()[i] * -1.0;
         });
 
-        return pop;
+        return population;
     }
 
-    private void modifyProbabilities(int sign, double[] prob, int selectedOGIndex) {
-        double num = RandomUtils.nextDouble(0, 1);
-        num *= sign;
-        prob[selectedOGIndex] += num;
-        prob[selectedOGIndex] = prob[selectedOGIndex] < 0 ? prob[selectedOGIndex] * -1 : prob[selectedOGIndex];
+    private void modifyProbabilities(double sign, double[] prob, int geneticOperatorIdx) {
+        double delta = RandomUtils.nextDouble(0, 1);
+        delta *= sign;
+        prob[geneticOperatorIdx] += delta;
+        prob[geneticOperatorIdx] = prob[geneticOperatorIdx] < 0 ? prob[geneticOperatorIdx] * -1 : prob[geneticOperatorIdx];
         double sum = 0.0;
-        for (double aProb : prob) {
+        for (double aProb : prob)
             sum += aProb;
-        }
-        for (int i = 0; i < prob.length; i++) {
+        for (int i = 0; i < prob.length; i++)
             prob[i] /= sum;
-        }
     }
 
 

@@ -12,7 +12,7 @@ public abstract class ObjectiveFunction<T extends Individual> {
     @Setter
     private boolean minimize;
 
-    public abstract double apply(T individual);
+    protected abstract double compute(T individual);
 
     /**
      * Consider whether the objective must be minimized or maximizec
@@ -20,8 +20,8 @@ public abstract class ObjectiveFunction<T extends Individual> {
      * @param individual
      * @return
      */
-    public double compute(T individual) {
-        return (minimize ? 1.0 : -1.0) * apply(individual);
+    public double apply(T individual) {
+        return (minimize ? 1.0 : -1.0) * compute(individual);
     }
 
 }

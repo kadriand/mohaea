@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ZDT3 {
+public class ZDT2 {
 
     public static void main(String args[]) {
         zitzlerDebThiele();
@@ -35,15 +35,15 @@ public class ZDT3 {
         Double[] min = new Double[dimensions];
         Double[] max = new Double[dimensions];
 
-        int MAX_ITERATIONS = 100;
-        int POPULATION_SIZE = 100;
+        int MAX_ITERATIONS = 50;
+        int POPULATION_SIZE = 50;
 
         ObjectiveFunction[] objectiveFunctions = new ObjectiveFunction[2];
 
         Arrays.fill(min, 0.0);
         Arrays.fill(max, 1.0);
-        objectiveFunctions[0] = new ZitzlerDebThiele.ZDT3_F1(true);
-        objectiveFunctions[1] = new ZitzlerDebThiele.ZDT3_F2(true);
+        objectiveFunctions[0] = new ZitzlerDebThiele.ZDT2_F1(true);
+        objectiveFunctions[1] = new ZitzlerDebThiele.ZDT2_F2(true);
 
         List<GeneticOperator<RealIndividual>> geneticOperators = new ArrayList<>();
         geneticOperators.add(new RealCrossAverage());
@@ -58,11 +58,11 @@ public class ZDT3 {
 
         //        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterFrameInterceptor<>(MAX_ITERATIONS / 5);
 
-//        FitnessCalculation<RealIndividual> fitnessCalculation = new NSGA2FitnessCalculation<RealIndividual>(objectiveFunctions);
-//        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "zdt3/nsga2-", objectiveFunctions);
+        //        FitnessCalculation<RealIndividual> fitnessCalculation = new NSGA2FitnessCalculation<RealIndividual>(objectiveFunctions);
+        //        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "run-nsga2/nsga2-", objectiveFunctions);
 
-                FitnessCalculation<RealIndividual> fitnessCalculation = new SPEA2FitnessCalculation<RealIndividual>(objectiveFunctions);
-                EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "zdt3/spea2-", objectiveFunctions);
+        FitnessCalculation<RealIndividual> fitnessCalculation = new SPEA2FitnessCalculation<RealIndividual>(objectiveFunctions);
+        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "zdt2-spea2/spea2-", objectiveFunctions);
 
         //        GeneticAlgorithm<RealIndividual> ga = new GeneticAlgorithm<>(geneticOperators, terminationCondition, selectionMethod,true, initialization, fitnessCalculation);
         HAEA<RealIndividual> ga = new HAEA<>(geneticOperators, terminationCondition, selectionMethod, initialization, fitnessCalculation);

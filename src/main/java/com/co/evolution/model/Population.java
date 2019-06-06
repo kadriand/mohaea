@@ -4,22 +4,28 @@ import com.co.evolution.model.individual.Individual;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class Population<E extends Individual> extends ArrayList<E> {
 
     private E best;
 
+    public Population() {
+        super();
+    }
+
+    public Population(List<E> individuals) {
+        super();
+        this.addAll(individuals);
+    }
+
     public E getBest() {
         if (this.best != null)
             return this.best;
 
-        E best = get(0);
-        for (int i = 1; i < size(); i++) {
-            E actual = get(i);
-            if (actual.compareTo(best) < 0)
-                best = actual;
-        }
-        this.best = best;
+        for (E individual : this)
+            if (individual.isBetter(this.best))
+                this.best = individual;
         return this.best;
     }
 

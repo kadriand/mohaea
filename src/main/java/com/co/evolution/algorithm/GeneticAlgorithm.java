@@ -35,7 +35,7 @@ public class GeneticAlgorithm<T extends Individual> extends Algorithm<T> {
         T bestBefore = null;
         GeneticOperator<T> crossOp = getGeneticOperators().get(0);
         GeneticOperator<T> mutateOp = getGeneticOperators().get(1);
-        while(getTerminationCondition().getCondition(iteration, best, bestBefore))
+        while(getTerminationCondition().keepIteratingCondition(iteration, best, bestBefore))
         {
             System.out.println("Value: " + best.toString() + " Fitness: " + best.getFitness());
             Population<T> newPop = new Population<>();
@@ -47,7 +47,7 @@ public class GeneticAlgorithm<T extends Individual> extends Algorithm<T> {
                 List<T> crossingInd = crossOp.apply(parents);
                 List<T> mutateInd = mutateOp.apply(crossingInd);
                 for (T child : mutateInd) {
-                    child.setFitness(getFitnessCalculation().calculate(child, pop));
+                    child.setFitness(getFitnessCalculation().computeIndividualFitness(child, pop));
                 }
                 newPop.addAll(mutateInd);
                 numInd += mutateInd.size();

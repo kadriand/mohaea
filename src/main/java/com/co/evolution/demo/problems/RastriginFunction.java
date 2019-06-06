@@ -10,7 +10,7 @@ public class RastriginFunction extends ObjectiveFunction<RealIndividual> {
     }
 
     @Override
-    public double apply(RealIndividual individual) {
+    public double compute(RealIndividual individual) {
         int dimensions = individual.getDimensions();
         double sum = 0.0;
         for (int i = 0; i < dimensions; i++) {

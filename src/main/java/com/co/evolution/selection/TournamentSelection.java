@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class TournamentSelection<T extends Individual> implements SelectionMethod<T> {
 
-    private int numberRivals;
+    private int rivalsSize;
 
     @Override
     public void init(List<T> individuals) {
@@ -20,18 +20,17 @@ public class TournamentSelection<T extends Individual> implements SelectionMetho
     }
 
     @Override
-    public List<T> select(List<T> individuals, int individualNumber) {
-        int max = individuals.size();
+    public List<T> select(List<T> population, int tournamentRounds) {
+        int max = population.size();
         List<T> selected = new ArrayList<>();
 
-        for (int i = 0; i < individualNumber; i++) {
-            HashSet<Integer> hs = RandomUtils.getDifferentRandomIntegers(max, numberRivals);
+        for (int i = 0; i < tournamentRounds; i++) {
+            HashSet<Integer> hs = RandomUtils.getDifferentRandomIntegers(max, rivalsSize);
             List<Integer>  indexes = new ArrayList<>(hs);
-            T winner = individuals.get(indexes.get(0));
-
-            for (int j = 1; j < numberRivals; j++)
-                if (individuals.get(indexes.get(j)).compareTo(winner) < 0)
-                    winner = individuals.get(indexes.get(j));
+            T winner = null;
+            for (Integer index : indexes)
+                if (population.get(index).isBetter(winner))
+                    winner = population.get(index);
             selected.add(winner);
         }
         return selected;

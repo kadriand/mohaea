@@ -3,9 +3,6 @@ package com.co.evolution.model.individual;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public abstract class IndividualImpl<T> implements Individual {
 
     private T individual;
@@ -31,7 +28,8 @@ public abstract class IndividualImpl<T> implements Individual {
     private double penalization;
 
     @Getter
-    private List<Double> diversityMeasures = new ArrayList<>();
+    @Setter
+    private double[] diversityMeasures;
 
     public T get() {
         return individual;
@@ -44,8 +42,13 @@ public abstract class IndividualImpl<T> implements Individual {
     public abstract Individual clone();
 
     @Override
-    public int compareTo(Individual individual) {
-        return Double.compare(this.fitness, individual.getFitness());
+    public boolean isFeasible() {
+        return this.penalization == 0;
+    }
+
+    @Override
+    public boolean isBetter(Individual other) {
+        return other == null || this.fitness < other.getFitness();
     }
 
     @Override

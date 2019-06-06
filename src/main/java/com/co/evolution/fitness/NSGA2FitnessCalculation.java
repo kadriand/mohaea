@@ -8,6 +8,7 @@ import com.co.evolution.model.individual.Individual;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.stream.DoubleStream;
 
 public class NSGA2FitnessCalculation<T extends Individual> implements FitnessCalculation<T> {
 
@@ -26,17 +27,23 @@ public class NSGA2FitnessCalculation<T extends Individual> implements FitnessCal
         this.penalization = penalization;
     }
 
+    @Override
+    public double[] computeObjectives(T individual) {
+        double[] objectiveValues = new double[objectiveFunctions.length];
+        for (int i = 0; i < objectiveFunctions.length; i++)
+            objectiveValues[i] = objectiveFunctions[i].apply(individual);
+        return objectiveValues;
+    }
+
     /**
      * NSGA2: Improving the Strength Pareto Evolutionary Algorithm
      */
     @Override
-    public double calculate(T individual, List<T> population) {
+    public double computeIndividualFitness(T individual, List<T> population) {
         if (!population.contains(individual))
-            paretoRanks.compareExternalWithPopulation(individual);
-        double crowdingDistance = 0.0;
-        for (int o = 0; o < objectiveFunctions.length; o++)
-            crowdingDistance += individual.getDiversityMeasures().get(o);
-        double density = 1.0 / (crowdingDistance + 2.0);
+            paretoRanks.fillExternalIndividualDiversityMeasures(individual);
+        double crowdingDistance = DoubleStream.of(individual.getDiversityMeasures()).sum();
+        double density = 1.0 / (2.0 + crowdingDistance);
         if (density > 1)
             System.out.println(density);
         double individualPenalization = this.penalization == null ? 0.0 : this.penalization.apply(individual);
@@ -44,8 +51,10 @@ public class NSGA2FitnessCalculation<T extends Individual> implements FitnessCal
     }
 
     @Override
-    public void newGenerationApply(List<T> population) {
+    public void computePopulationFitness(List<T> population) {
         this.paretoRanks = new NSGA2FastNonDominatedSorting<>(population, this.objectiveFunctions.length);
         this.paretoRanks.sort();
+        for (T individual : population)
+            individual.setFitness(computeIndividualFitness(individual, population));
     }
 }

@@ -14,37 +14,38 @@ public class SPEA2FastNonDominatedSorting<T extends Individual> extends FastNonD
         double[] comparisonObjectives = comparisonIndividual.getObjectiveValues();
         int howManyDominateMe = 0;
         int until = population.size();
+        comparisonIndividual.setDiversityMeasures(new double[population.size()]);
         for (int j = 0; j < until; ++j) {
             T loopIndividual = population.get(j);
             int comp = dominanceComparison(comparisonObjectives, loopIndividual.getObjectiveValues());
             if (comp == 1)
                 howManyDominateMe++;
             double distance = euclideanDistance(comparisonIndividual, loopIndividual);
-            comparisonIndividual.getDiversityMeasures().add(distance);
+            comparisonIndividual.getDiversityMeasures()[j] = distance;
         }
         comparisonIndividual.setHowManyDominateMe(howManyDominateMe);
     }
 
     @Override
-    protected void comparePointWithPopulation(int index, int from) {
-        T comparisonIndividual = population.get(index);
+    protected void comparePointWithPopulation(int individualIdx, int from) {
+        T comparisonIndividual = population.get(individualIdx);
         double[] comparisonObjectives = comparisonIndividual.getObjectiveValues();
 
-        int until = population.size();
-        for (int j = from; j < until; ++j) {
-            T loopIndividual = population.get(j);
-            int comp = dominanceComparison(comparisonObjectives, loopIndividual.getObjectiveValues());
+        int populationSize = population.size();
+        for (int j = from; j < populationSize; ++j) {
+            T individualDominance = population.get(j);
+            int comp = dominanceComparison(comparisonObjectives, individualDominance.getObjectiveValues());
 
             if (comp == -1)
-                pushToDominateList(index, j);
+                pushToDominateList(individualIdx, j);
             else if (comp == +1)
-                pushToDominateList(j, index);
+                pushToDominateList(j, individualIdx);
 
-            double distance = euclideanDistance(comparisonIndividual, loopIndividual);
-            comparisonIndividual.getDiversityMeasures().add(distance);
-            loopIndividual.getDiversityMeasures().add(distance);
+            double distance = euclideanDistance(comparisonIndividual, individualDominance);
+            comparisonIndividual.getDiversityMeasures()[j - 1] = distance;
+            individualDominance.getDiversityMeasures()[individualIdx] = distance;
         }
-        population.get(index).setHowManyDominateMe(howManyDominateMe[index]);
+        population.get(individualIdx).setHowManyDominateMe(howManyDominateMe[individualIdx]);
     }
 
     private double euclideanDistance(T one, T other) {

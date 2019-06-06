@@ -13,7 +13,7 @@ public class SchafferFunction extends ObjectiveFunction<RealIndividual> {
     }
 
     @Override
-    public double apply(RealIndividual individual) {
+    public double compute(RealIndividual individual) {
         return Math.pow(individual.get()[0] - substraction, 2);
     }
 }

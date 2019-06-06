@@ -6,11 +6,12 @@ import java.util.List;
 
 public interface FitnessCalculation<T extends Individual> {
 
-
     ObjectiveFunction<T>[] getObjectiveFunctions();
 
-    double calculate(T individual, List<T> population);
+    double[] computeObjectives(T individual);
 
-    void newGenerationApply(List<T> population);
+    double computeIndividualFitness(T individual, List<T> population);
+
+    void computePopulationFitness(List<T> population);
 
 }

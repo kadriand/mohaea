@@ -3,7 +3,7 @@ package com.co.evolution.demo.problems;
 import com.co.evolution.individual.RealIndividual;
 import com.co.evolution.model.ObjectiveFunction;
 
-public class ZitzlerDebThiele3 {
+public class ZitzlerDebThiele {
 
     public static class ZDT3_F1 extends ObjectiveFunction<RealIndividual> {
         public ZDT3_F1(boolean minimize) {
@@ -11,7 +11,7 @@ public class ZitzlerDebThiele3 {
         }
 
         @Override
-        public double apply(RealIndividual individual) {
+        public double compute(RealIndividual individual) {
             return individual.get()[0];
         }
     }
@@ -23,7 +23,7 @@ public class ZitzlerDebThiele3 {
         }
 
         @Override
-        public double apply(RealIndividual individual) {
+        public double compute(RealIndividual individual) {
             double g = 1;
             for (int i = 1; i < 30;i++)
                 g += 9 / 29 * individual.get()[i];
@@ -38,7 +38,7 @@ public class ZitzlerDebThiele3 {
         }
 
         @Override
-        public double apply(RealIndividual individual) {
+        public double compute(RealIndividual individual) {
             return individual.get()[0];
         }
     }
@@ -50,7 +50,7 @@ public class ZitzlerDebThiele3 {
         }
 
         @Override
-        public double apply(RealIndividual individual) {
+        public double compute(RealIndividual individual) {
             double g = 1;
             for (int i = 1; i < 30;i++)
                 g += 9 / 29 * individual.get()[i];

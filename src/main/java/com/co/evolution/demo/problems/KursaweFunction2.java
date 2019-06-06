@@ -10,7 +10,7 @@ public class KursaweFunction2 extends ObjectiveFunction<RealIndividual> {
     }
 
     @Override
-    public double apply(RealIndividual individual) {
+    public double compute(RealIndividual individual) {
         double result = 0;
         for (int i = 0; i < 3; i++)
             result += Math.pow(Math.abs(individual.get()[i]), 0.8) + 5 * Math.sin(individual.get()[i] * individual.get()[i] * individual.get()[i]);
