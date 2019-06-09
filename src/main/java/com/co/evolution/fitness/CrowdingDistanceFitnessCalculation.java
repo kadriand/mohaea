@@ -10,7 +10,7 @@ import lombok.Getter;
 import java.util.List;
 import java.util.stream.DoubleStream;
 
-public class NSGA2FitnessCalculation<T extends Individual> implements FitnessCalculation<T> {
+public class CrowdingDistanceFitnessCalculation<T extends Individual> implements FitnessCalculation<T> {
 
     private NSGA2FastNonDominatedSorting<T> paretoRanks;
 
@@ -18,11 +18,11 @@ public class NSGA2FitnessCalculation<T extends Individual> implements FitnessCal
     protected ObjectiveFunction<T>[] objectiveFunctions;
     protected Penalization<T> penalization;
 
-    public NSGA2FitnessCalculation(ObjectiveFunction<T>... objectiveFunctions) {
+    public CrowdingDistanceFitnessCalculation(ObjectiveFunction<T>... objectiveFunctions) {
         this.objectiveFunctions = objectiveFunctions;
     }
 
-    public NSGA2FitnessCalculation(Penalization<T> penalization, ObjectiveFunction<T>... objectiveFunctions) {
+    public CrowdingDistanceFitnessCalculation(Penalization<T> penalization, ObjectiveFunction<T>... objectiveFunctions) {
         this.objectiveFunctions = objectiveFunctions;
         this.penalization = penalization;
     }
@@ -52,7 +52,7 @@ public class NSGA2FitnessCalculation<T extends Individual> implements FitnessCal
     }
 
     @Override
-    public void computePopulationFitness(List<T> population) {
+    public void computePopulationRanksFitness(List<T> population) {
         this.paretoRanks = new NSGA2FastNonDominatedSorting<>(population, this.objectiveFunctions.length);
         this.paretoRanks.sort();
         for (T individual : population)

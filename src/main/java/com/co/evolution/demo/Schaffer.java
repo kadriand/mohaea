@@ -1,8 +1,8 @@
 package com.co.evolution.demo;
 
 import com.co.evolution.algorithm.HAEA;
-import com.co.evolution.demo.problems.SchafferFunction;
-import com.co.evolution.fitness.SPEA2FitnessCalculation;
+import com.co.evolution.demo.functions.SchafferFunction;
+import com.co.evolution.fitness.StrengthParetoFitnessCalculation;
 import com.co.evolution.geneticoperators.RealCrossAverage;
 import com.co.evolution.geneticoperators.RealMutation;
 import com.co.evolution.geneticoperators.RealPickRandom;
@@ -58,7 +58,7 @@ public class Schaffer {
 
         //                FitnessCalculation<RealIndividual> fitnessCalculation = new NSGA2FitnessCalculation<RealIndividual>(objectiveFunctions);
         //                EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "scha/nsga2-", objectiveFunctions);
-        FitnessCalculation<RealIndividual> fitnessCalculation = new SPEA2FitnessCalculation<RealIndividual>(objectiveFunctions);
+        FitnessCalculation<RealIndividual> fitnessCalculation = new StrengthParetoFitnessCalculation<RealIndividual>(objectiveFunctions);
         EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "scha/spea2-", objectiveFunctions);
         //        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new OperatorsRatesInterceptor<>("scha/spea2-", geneticOperators, "tsv", "\t");
 

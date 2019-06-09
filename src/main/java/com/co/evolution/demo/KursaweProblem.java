@@ -1,9 +1,9 @@
 package com.co.evolution.demo;
 
 import com.co.evolution.algorithm.HAEA;
-import com.co.evolution.demo.problems.KursaweFunction1;
-import com.co.evolution.demo.problems.KursaweFunction2;
-import com.co.evolution.fitness.SPEA2FitnessCalculation;
+import com.co.evolution.demo.functions.KursaweFunction1;
+import com.co.evolution.demo.functions.KursaweFunction2;
+import com.co.evolution.fitness.StrengthParetoFitnessCalculation;
 import com.co.evolution.geneticoperators.RealCrossAverage;
 import com.co.evolution.geneticoperators.RealMutation;
 import com.co.evolution.geneticoperators.RealPickRandom;
@@ -59,7 +59,7 @@ public class KursaweProblem {
 
 //        FitnessCalculation<RealIndividual> fitnessCalculation = new NSGA2FitnessCalculation<RealIndividual>(objectiveFunctions);
 //        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "kur/nsga2-", objectiveFunctions);
-                FitnessCalculation<RealIndividual> fitnessCalculation = new SPEA2FitnessCalculation<RealIndividual>(objectiveFunctions);
+                FitnessCalculation<RealIndividual> fitnessCalculation = new StrengthParetoFitnessCalculation<RealIndividual>(objectiveFunctions);
                 EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "kur/spea2", objectiveFunctions);
 
         //        GeneticAlgorithm<RealIndividual> ga = new GeneticAlgorithm<>(geneticOperators, terminationCondition, selectionMethod,true, initialization, fitnessCalculation);

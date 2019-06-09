@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 public class NSGA2FastNonDominatedSorting<T extends Individual> extends FastNonDominatedSorting<T> {
 
-    private List<T>[] ranksIndividuals;
+    private List<T>[] individualRanks;
     private double[][] objectivesRange;
 
     public NSGA2FastNonDominatedSorting(List<T> population, int objectivesSize) {
@@ -18,12 +18,12 @@ public class NSGA2FastNonDominatedSorting<T extends Individual> extends FastNonD
     @Override
     public void sort() {
         super.sort();
-        this.ranksIndividuals = new List[ranksSize + 1];
+        this.individualRanks = new List[ranksSize + 1];
         this.objectivesRange = new double[ranksSize + 1][objectivesSize];
         for (int rank = 0; rank <= ranksSize; rank++) {
             final int rankFinal = rank;
             List<T> rankIndividuals = population.stream().filter(t -> t.getParetoRank() == rankFinal).collect(Collectors.toList());
-            ranksIndividuals[rank] = rankIndividuals;
+            individualRanks[rank] = rankIndividuals;
             fillDiversityMeasures(rankIndividuals, rank);
         }
     }
@@ -52,11 +52,11 @@ public class NSGA2FastNonDominatedSorting<T extends Individual> extends FastNonD
         int rank = 0;
         boolean dominated = true;
         while (rank < ranksSize && dominated)
-            dominated = ranksIndividuals[rank++].stream().anyMatch(rankIndividual -> dominanceComparison(comparisonObjectives, rankIndividual.getObjectiveValues()) == 1);
+            dominated = individualRanks[rank++].stream().anyMatch(rankIndividual -> dominanceComparison(comparisonObjectives, rankIndividual.getObjectiveValues()) == 1);
 
         int individualRank = rank - 1;
         externalIndividual.setParetoRank(individualRank);
-        List<T> rankIndividuals = ranksIndividuals[individualRank];
+        List<T> rankIndividuals = individualRanks[individualRank];
         Individual[][] nearestIndividuals = new Individual[objectivesSize][2];
 
         for (T rankIndividual : rankIndividuals)
@@ -69,14 +69,13 @@ public class NSGA2FastNonDominatedSorting<T extends Individual> extends FastNonD
                         nearestIndividuals[o][1] = rankIndividual;
                 }
 
-        double adjustmentFactor = 1 + 1 / rankIndividuals.size();
         externalIndividual.setDiversityMeasures(new double[objectivesSize]);
         for (int o = 0; o < objectivesSize; o++) {
             double objectiveCrowdingDistance;
             if (nearestIndividuals[o][0] == null || nearestIndividuals[o][1] == null)
                 objectiveCrowdingDistance = 1.0;
             else
-                objectiveCrowdingDistance = adjustmentFactor * (nearestIndividuals[o][1].getObjectiveValues()[o] - nearestIndividuals[o][0].getObjectiveValues()[o]) / objectivesRange[individualRank][o];
+                objectiveCrowdingDistance = (nearestIndividuals[o][1].getObjectiveValues()[o] - nearestIndividuals[o][0].getObjectiveValues()[o]) / objectivesRange[individualRank][o];
             externalIndividual.getDiversityMeasures()[o] = objectiveCrowdingDistance;
         }
     }

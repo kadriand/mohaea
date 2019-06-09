@@ -10,7 +10,7 @@ import lombok.Getter;
 import java.util.Arrays;
 import java.util.List;
 
-public class SPEA2FitnessCalculation<T extends Individual> implements FitnessCalculation<T> {
+public class StrengthParetoFitnessCalculation<T extends Individual> implements FitnessCalculation<T> {
 
     private SPEA2FastNonDominatedSorting<T> paretoRanks;
     private int kthNeighbor;
@@ -19,11 +19,11 @@ public class SPEA2FitnessCalculation<T extends Individual> implements FitnessCal
     protected ObjectiveFunction<T>[] objectiveFunctions;
     protected Penalization<T> penalization;
 
-    public SPEA2FitnessCalculation(ObjectiveFunction<T>... objectiveFunctions) {
+    public StrengthParetoFitnessCalculation(ObjectiveFunction<T>... objectiveFunctions) {
         this.objectiveFunctions = objectiveFunctions;
     }
 
-    public SPEA2FitnessCalculation(Penalization<T> penalization, ObjectiveFunction<T>... objectiveFunctions) {
+    public StrengthParetoFitnessCalculation(Penalization<T> penalization, ObjectiveFunction<T>... objectiveFunctions) {
         this.objectiveFunctions = objectiveFunctions;
         this.penalization = penalization;
     }
@@ -53,7 +53,7 @@ public class SPEA2FitnessCalculation<T extends Individual> implements FitnessCal
     }
 
     @Override
-    public void computePopulationFitness(List<T> population) {
+    public void computePopulationRanksFitness(List<T> population) {
         this.paretoRanks = new SPEA2FastNonDominatedSorting<>(population, this.objectiveFunctions.length);
         this.kthNeighbor = (int) Math.pow(population.size(), 0.5);
         for (T individual : population)

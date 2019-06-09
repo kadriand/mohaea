@@ -12,6 +12,6 @@ public interface FitnessCalculation<T extends Individual> {
 
     double computeIndividualFitness(T individual, List<T> population);
 
-    void computePopulationFitness(List<T> population);
+    void computePopulationRanksFitness(List<T> population);
 
 }

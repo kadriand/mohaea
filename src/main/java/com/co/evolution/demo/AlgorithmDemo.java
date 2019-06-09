@@ -9,7 +9,7 @@ import com.co.evolution.model.GeneticOperator;
 import com.co.evolution.model.ObjectiveFunction;
 import com.co.evolution.model.PopulationInitialization;
 import com.co.evolution.model.SelectionMethod;
-import com.co.evolution.demo.problems.RastriginFunction;
+import com.co.evolution.demo.functions.RastriginFunction;
 import com.co.evolution.selection.TournamentSelection;
 import com.co.evolution.termination.MaxIterationsTerminationCondition;
 
