@@ -2,7 +2,7 @@ package com.co.evolution.demo;
 
 import com.co.evolution.algorithm.HAEA;
 import com.co.evolution.demo.functions.ZitzlerDebThiele;
-import com.co.evolution.fitness.StrengthParetoFitnessCalculation;
+import com.co.evolution.fitness.CrowdingDistanceFitnessCalculation;
 import com.co.evolution.geneticoperators.RealCrossAverage;
 import com.co.evolution.geneticoperators.RealMutation;
 import com.co.evolution.geneticoperators.RealPickRandom;
@@ -58,10 +58,10 @@ public class ZDT3 {
 
         //        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterFrameInterceptor<>(MAX_ITERATIONS / 5);
 
-        //        FitnessCalculation<RealIndividual> fitnessCalculation = new NSGA2FitnessCalculation<RealIndividual>(objectiveFunctions);
-        //        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "zdt3/nsga2-", objectiveFunctions);
-        FitnessCalculation<RealIndividual> fitnessCalculation = new StrengthParetoFitnessCalculation<RealIndividual>(objectiveFunctions);
-        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "zdt3/spea2-", objectiveFunctions);
+        FitnessCalculation<RealIndividual> fitnessCalculation = new CrowdingDistanceFitnessCalculation<RealIndividual>(objectiveFunctions);
+        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "zdt3/nsga2-", objectiveFunctions);
+        //        FitnessCalculation<RealIndividual> fitnessCalculation = new StrengthParetoFitnessCalculation<RealIndividual>(objectiveFunctions);
+        //        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "zdt3/spea2-", objectiveFunctions);
 
         //        GeneticAlgorithm<RealIndividual> ga = new GeneticAlgorithm<>(geneticOperators, terminationCondition, selectionMethod,true, initialization, fitnessCalculation);
         HAEA<RealIndividual> ga = new HAEA<>(geneticOperators, terminationCondition, selectionMethod, initialization, fitnessCalculation);

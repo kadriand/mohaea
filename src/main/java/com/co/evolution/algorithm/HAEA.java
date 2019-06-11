@@ -27,8 +27,8 @@ public class HAEA<T extends Individual> extends Algorithm<T> {
     @Override
     public Population<T> apply() {
         int iteration = 1;
-        Population<T> population = initialization.init(fitnessCalculation);
-        T best = population.getBest();
+        Population<T> parentsPopulation = initialization.init(fitnessCalculation);
+        T best = parentsPopulation.getBest();
         T bestBefore = null;
 
         Map<T, double[]> operatorsRates = new HashMap<>();
@@ -36,63 +36,61 @@ public class HAEA<T extends Individual> extends Algorithm<T> {
         for (int p = 0; p < geneticOperators.size(); p++)
             defaultProbabilities[p] = 1.0 / geneticOperators.size();
 
-        population.forEach(individual -> operatorsRates.put(individual, defaultProbabilities.clone()));
+        parentsPopulation.forEach(individual -> operatorsRates.put(individual, defaultProbabilities.clone()));
 
         while (terminationCondition.keepIteratingCondition(iteration, best, bestBefore)) {
-            evolutionInterceptor.intercept(population, iteration, operatorsRates, false);
-            Population<T> offspring = new Population<>();
-            selectionMethod.init(population);
+            evolutionInterceptor.intercept(parentsPopulation, iteration, operatorsRates, false);
+            Population<T> newPopulation = new Population<>();
+            selectionMethod.init(parentsPopulation);
 
-            for (T individual : population) {
-                double[] individualOperatorsRates = operatorsRates.get(individual);
-                int genetOperatorRouletteIdx = RandomUtils.nextIntegerWithDefinedDistribution(individualOperatorsRates);
+            for (T parent : parentsPopulation) {
+                double[] parentOperatorsRates = operatorsRates.get(parent);
+                int genetOperatorRouletteIdx = RandomUtils.nextIntegerWithDefinedDistribution(parentOperatorsRates);
                 GeneticOperator<T> geneticOperator = geneticOperators.get(genetOperatorRouletteIdx);
-                List<T> operatorParents = new ArrayList<>();
-                operatorParents.add(individual);
+                List<T> parents = new ArrayList<>();
+                parents.add(parent);
                 if (geneticOperator.getCardinal() > 1) {
-                    List<T> selectedParents = selectionMethod.select(population, geneticOperator.getCardinal() - 1);
-                    operatorParents.addAll(selectedParents);
+                    List<T> selectedParents = selectionMethod.select(parentsPopulation, geneticOperator.getCardinal() - 1);
+                    parents.addAll(selectedParents);
                 }
 
-                List<T> children = geneticOperator.apply(operatorParents);
+                List<T> children = geneticOperator.apply(parents);
                 for (T child : children) {
                     child.setObjectiveValues(fitnessCalculation.computeObjectives(child));
-                    child.setFitness(fitnessCalculation.computeIndividualFitness(child, population));
+                    child.setFitness(fitnessCalculation.computeIndividualFitness(child, parentsPopulation));
                 }
                 T bestChild = new Population<>(children).getBest();
+                boolean reward = bestChild.isBetter(parent);  // reward: punish
+                updateRates(reward, parentOperatorsRates, genetOperatorRouletteIdx);
 
-                boolean reward = bestChild.isBetter(individual);  // reward : punish
-                updateRates(reward, individualOperatorsRates, genetOperatorRouletteIdx);
-
-                operatorsRates.put(bestChild, individualOperatorsRates.clone());
-                offspring.add(bestChild);
+                operatorsRates.put(bestChild, parentOperatorsRates.clone());
+                newPopulation.add(bestChild);
             }
 
-            Population<T> elitistPopulation = new Population<>(population);
-            elitistPopulation.addAll(offspring);
-            fitnessCalculation.computePopulationRanksFitness(elitistPopulation);
-            elitistPopulation.sort(Comparator.comparing(Individual::getFitness));
+            Population<T> population = new Population<>(parentsPopulation);
+            population.addAll(newPopulation);
+            fitnessCalculation.computePopulationRanksFitness(population);
+            population.sort(Comparator.comparing(Individual::getFitness));
 
             int size = initialization.getSize();
             for (int i = 0; i < size; i++) {
-                T individualToRemove = elitistPopulation.remove(size);
+                T individualToRemove = population.remove(size);
                 operatorsRates.remove(individualToRemove);
             }
-            population = elitistPopulation;
-            fitnessCalculation.computePopulationRanksFitness(population);
+            parentsPopulation = population;
 
             bestBefore = best;
-            best = population.getBest();
+            best = parentsPopulation.getBest();
             iteration++;
         }
-        evolutionInterceptor.intercept(population, 0, operatorsRates, false);
+        evolutionInterceptor.intercept(parentsPopulation, 0, operatorsRates, false);
 
-        for (T individual : population)
+        for (T individual : parentsPopulation)
             for (int i = 0; i < fitnessCalculation.getObjectiveFunctions().length; i++)
                 if (!fitnessCalculation.getObjectiveFunctions()[i].isMinimize())
                     individual.getObjectiveValues()[i] *= -1.0;
 
-        return population;
+        return parentsPopulation;
     }
 
     private void updateRates(boolean reward, double[] rates, int geneticOperatorIdx) {
