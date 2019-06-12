@@ -34,48 +34,56 @@ public class HAEA<T extends Individual> extends Algorithm<T> {
         double[] defaultProbabilities = new double[geneticOperators.size()];
         for (int p = 0; p < geneticOperators.size(); p++)
             defaultProbabilities[p] = 1.0 / geneticOperators.size();
-
-        population.forEach(individual -> operatorsRates.put(individual, defaultProbabilities.clone()));
+        for (T individual : population)
+            operatorsRates.put(individual, defaultProbabilities.clone());
 
         while (terminationCondition.keepIteratingCondition(iteration, best, bestBefore)) {
             evolutionInterceptor.intercept(population, iteration, operatorsRates, false);
-            Population<T> newPopulation = new Population<>();
+
+            List<T> parentsAndChildren = new ArrayList<>();
+            Map<T, Population<T>> individualOffsprings = new HashMap<>();
+            Map<T, Integer> individualOperatorIdxs = new HashMap<>();
             selectionMethod.init(population);
 
             for (T individual : population) {
-                double[] individualOperatorRates = operatorsRates.get(individual);
-                int genetOperatorRouletteIdx = RandomUtils.nextIntegerWithDefinedDistribution(individualOperatorRates);
+                double[] parentOperatorsRates = operatorsRates.get(individual);
+                int genetOperatorRouletteIdx = RandomUtils.nextIntegerWithDefinedDistribution(parentOperatorsRates);
                 GeneticOperator<T> geneticOperator = geneticOperators.get(genetOperatorRouletteIdx);
-                List<T> parents = new ArrayList<>();
-                parents.add(individual);
+                List<T> offspringParents = new ArrayList<>();
+                offspringParents.add(individual);
                 if (geneticOperator.getCardinal() > 1) {
                     List<T> selectedParents = selectionMethod.select(population, geneticOperator.getCardinal() - 1);
-                    parents.addAll(selectedParents);
+                    offspringParents.addAll(selectedParents);
                 }
+                List<T> children = geneticOperator.apply(offspringParents);
+                children.forEach(child -> child.setObjectiveValues(fitnessCalculation.computeObjectives(child)));
+                parentsAndChildren.addAll(children);
+                individualOffsprings.put(individual, new Population<>(children));
+                individualOperatorIdxs.put(individual, genetOperatorRouletteIdx);
+            }
 
-                List<T> children = geneticOperator.apply(parents);
-                for (T child : children) {
-                    child.setObjectiveValues(fitnessCalculation.computeObjectives(child));
-                    child.setFitness(fitnessCalculation.computeIndividualFitness(child, population));
-                }
-                T bestChild = new Population<>(children).getBest();
-
-                boolean reward = bestChild.isBetter(individual);  // reward: punish
-                updateRates(reward, individualOperatorRates, genetOperatorRouletteIdx);
-                if (reward) {
-                    operatorsRates.remove(individual);
-                    operatorsRates.put(bestChild, individualOperatorRates);
-                }
-                newPopulation.add(reward ? bestChild : individual);
+            parentsAndChildren.addAll(population);
+            fitnessCalculation.computePopulationRanksFitness(parentsAndChildren);
+            Population<T> newPopulation = new Population<>();
+            Map<T, double[]> newOperatorsRates = new HashMap<>();
+            for (Map.Entry<T, Population<T>> offspring : individualOffsprings.entrySet()) {
+                T bestChild = offspring.getValue().getBest();
+                T parent = offspring.getKey();
+                double[] parentOperatorsRates = operatorsRates.get(parent);
+                boolean reward = bestChild.isBetter(parent);
+                updateRates(reward, parentOperatorsRates, individualOperatorIdxs.get(parent));
+                T selectedIndividual = reward ? bestChild : parent;
+                newOperatorsRates.put(selectedIndividual, parentOperatorsRates);
+                newPopulation.add(selectedIndividual);
             }
 
             bestBefore = best;
             best = population.getBest();
+            operatorsRates = newOperatorsRates;
             population = newPopulation;
-            fitnessCalculation.computePopulationRanksFitness(population);
             iteration++;
         }
-        evolutionInterceptor.intercept(population, 0, operatorsRates, false);
+        evolutionInterceptor.intercept(population, 0, operatorsRates, true);
 
         for (T individual : population)
             for (int i = 0; i < fitnessCalculation.getObjectiveFunctions().length; i++)

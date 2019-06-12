@@ -20,6 +20,8 @@ public class ParetoPlotterImageInterceptor<T extends Individual> extends Evoluti
     private String fieldSeparator = ",";
     @Setter
     private String textExtension = "csv";
+    @Setter
+    private ParetoPlotter.Format format = ParetoPlotter.Format.JPEG;
 
     public ParetoPlotterImageInterceptor(int generationsGap, String prefix, ObjectiveFunction... objectiveFunctions) {
         this.functionsSigns = new double[objectiveFunctions.length];
@@ -32,13 +34,13 @@ public class ParetoPlotterImageInterceptor<T extends Individual> extends Evoluti
     @Override
     public void apply(Population<T> population, int generation, Map<T, double[]> operatorsRates) {
         System.out.println("Value: " + population.getBest().toString() + " Fitness: " + population.getBest().getFitness() + " Value: " + Arrays.toString(population.getBest().getObjectiveValues()));
-        ParetoPlotter<T> paretoPlotter = new ParetoPlotter<>("Iteration " + generation, population, this.functionsSigns);
-        File scatterPlotFile = paretoPlotter.toFile(imagesPathPrefix + "iteration-" + generation);
+        ParetoPlotter<T> paretoPlotter = new ParetoPlotter<>("Generation " + generation, population, this.functionsSigns);
+        File scatterPlotFile = paretoPlotter.toFile(imagesPathPrefix + "generation-" + generation, format);
 
         try {
             System.out.println("Pareto fronts stored in " + scatterPlotFile.getCanonicalPath());
 
-            File pointsFile = new File(String.format("output/%siteration-%s.%s", imagesPathPrefix, generation, textExtension));
+            File pointsFile = new File(String.format("output/%sgeneration-%s.%s", imagesPathPrefix, generation, textExtension));
             pointsFile.getParentFile().mkdirs();
             StringBuilder generationInfo = new StringBuilder();
             generationInfo

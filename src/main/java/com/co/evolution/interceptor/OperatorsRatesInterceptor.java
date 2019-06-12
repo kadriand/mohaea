@@ -11,6 +11,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.DoubleStream;
 
 public class OperatorsRatesInterceptor<T extends Individual> extends EvolutionInterceptor<T> {
 
@@ -51,8 +52,9 @@ public class OperatorsRatesInterceptor<T extends Individual> extends EvolutionIn
         for (T individual : population)
             for (int i = 0; i < operatorsRatesMeans.length; i++)
                 operatorsRatesMeans[i] += generationOperatorsRates.get(individual)[i];
+        double ratesSum = DoubleStream.of(operatorsRatesMeans).sum();
         for (int i = 0; i < operatorsRatesMeans.length; i++)
-            operatorsRatesMeans[i] /= population.size();
+            operatorsRatesMeans[i] /= ratesSum;
 
         System.out.println("Generation: " + generation + ". Best Individual: " + population.getBest().toString() +
                 ". Best Fitness: " + population.getBest().getFitness() +

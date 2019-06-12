@@ -25,8 +25,6 @@ public class RandomRealInitialization implements PopulationInitialization<RealIn
             pop.add(realIndividual);
         }
         fitnessCalculation.computePopulationRanksFitness(pop);
-        for (RealIndividual realIndividual : pop)
-            realIndividual.setFitness(fitnessCalculation.computeIndividualFitness(realIndividual, pop));
         return pop;
     }
 

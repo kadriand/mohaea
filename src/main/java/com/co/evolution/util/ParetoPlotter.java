@@ -12,9 +12,12 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.graphics2d.svg.SVGGraphics2D;
+import org.jfree.graphics2d.svg.SVGUtils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
 import java.io.File;
 import java.util.List;
 
@@ -66,14 +69,14 @@ public class ParetoPlotter<T extends Individual> {
         XYSeriesCollection data = new XYSeriesCollection();
         data.addSeries(paretoFront);
         data.addSeries(secondaryFronts);
-        this.scatterPlot = ChartFactory.createScatterPlot(
+        this.scatterPlot = ChartFactory.createXYLineChart(
                 name,
                 "f1",
                 "f2",
                 data,
                 PlotOrientation.VERTICAL,
                 true,
-                true,
+                false,
                 false
         );
         scatterPlot.getPlot().setBackgroundPaint(Color.white);
@@ -83,12 +86,18 @@ public class ParetoPlotter<T extends Individual> {
         plot.setRenderer(0, renderer);
         XYItemRenderer rendererForDataset = plot.getRendererForDataset(plot.getDataset(0));
         rendererForDataset.setSeriesPaint(0, Color.BLUE);
-        rendererForDataset.setSeriesPaint(1, Color.GREEN);
+        rendererForDataset.setSeriesPaint(1, Color.cyan);
+        rendererForDataset.setSeriesShape(0, new Ellipse2D.Double(0, 0, 4, 4));
+        rendererForDataset.setSeriesShape(1, new Ellipse2D.Double(0, 0, 3, 3));
         renderer.setDefaultLinesVisible(false);
     }
 
     public File toFile(String name) {
-        String fileName = name + ".jpeg";
+        return toFile(name, Format.JPEG);
+    }
+
+    public File toFile(String name, Format format) {
+        String fileName = name + "." + format.toString().toLowerCase();
         String directory = "output/";
         File scatterPlotFile = new File(directory + fileName);
         scatterPlotFile.getParentFile().mkdirs();
@@ -96,7 +105,13 @@ public class ParetoPlotter<T extends Individual> {
         try {
             int width = 640;   /* Width of the image */
             int height = 480;  /* Height of the image */
-            ChartUtils.saveChartAsJPEG(scatterPlotFile, scatterPlot, width, height);
+            if (format == Format.JPEG)
+                ChartUtils.saveChartAsJPEG(scatterPlotFile, scatterPlot, width, height);
+            else if (format == Format.SVG) {
+                SVGGraphics2D svgGraphic = new SVGGraphics2D(width, height);
+                scatterPlot.draw(svgGraphic, new Rectangle(0, 0, width, height));
+                SVGUtils.writeToSVG(scatterPlotFile, svgGraphic.getSVGElement());
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -112,4 +127,7 @@ public class ParetoPlotter<T extends Individual> {
         return frame;
     }
 
+    public static enum Format {
+        JPEG, SVG
+    }
 }

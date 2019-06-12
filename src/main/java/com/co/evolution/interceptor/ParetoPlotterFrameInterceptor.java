@@ -22,8 +22,8 @@ public class ParetoPlotterFrameInterceptor<T extends Individual> extends Evoluti
 
     @Override
     public void apply(Population<T> population, int generation, Map<T, double[]> operatorsRates) {
-        ParetoPlotter<T> paretoPlotter = new ParetoPlotter<>("Iteration " + generation, population, this.functionsSigns);
-        JFrame paretoFrame = paretoPlotter.toJFrame("Plot Iteration " + generation);
+        ParetoPlotter<T> paretoPlotter = new ParetoPlotter<>("Generation " + generation, population, this.functionsSigns);
+        JFrame paretoFrame = paretoPlotter.toJFrame("Plot Generation " + generation);
         paretoFrame.setVisible(true);
         paretoFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }

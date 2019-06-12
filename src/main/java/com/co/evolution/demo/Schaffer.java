@@ -2,7 +2,7 @@ package com.co.evolution.demo;
 
 import com.co.evolution.algorithm.HAEA;
 import com.co.evolution.demo.functions.SchafferFunction;
-import com.co.evolution.fitness.StrengthParetoFitnessCalculation;
+import com.co.evolution.fitness.CrowdingDistanceFitnessCalculation;
 import com.co.evolution.geneticoperators.RealCrossAverage;
 import com.co.evolution.geneticoperators.RealMutation;
 import com.co.evolution.geneticoperators.RealPickRandom;
@@ -35,7 +35,7 @@ public class Schaffer {
         Double[] min = new Double[dimensions];
         Double[] max = new Double[dimensions];
 
-        int MAX_ITERATIONS = 100;
+        int MAX_ITERATIONS = 200;
         int POPULATION_SIZE = 100;
 
         ObjectiveFunction[] objectiveFunctions = new ObjectiveFunction[2];
@@ -56,12 +56,12 @@ public class Schaffer {
 
         PopulationInitialization<RealIndividual> initialization = new RandomRealInitialization(POPULATION_SIZE, min, max, dimensions);
 
-        //                FitnessCalculation<RealIndividual> fitnessCalculation = new NSGA2FitnessCalculation<RealIndividual>(objectiveFunctions);
-        //                EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "scha/nsga2-", objectiveFunctions);
-        FitnessCalculation<RealIndividual> fitnessCalculation = new StrengthParetoFitnessCalculation<RealIndividual>(objectiveFunctions);
-        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "scha/spea2-", objectiveFunctions);
-        //        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new OperatorsRatesInterceptor<>("scha/spea2-", geneticOperators, "tsv", "\t");
+        FitnessCalculation<RealIndividual> fitnessCalculation = new CrowdingDistanceFitnessCalculation<>(objectiveFunctions);
+        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "scha/nsga2-", objectiveFunctions);
+        //        FitnessCalculation<RealIndividual> fitnessCalculation = new StrengthParetoFitnessCalculation<RealIndividual>(objectiveFunctions);
+        //        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "scha/spea2-", objectiveFunctions);
 
+//        evolutionInterceptor = new OperatorsRatesInterceptor<>("scha/spea2-", geneticOperators, "tsv", "\t");
         //        GeneticAlgorithm<RealIndividual> ga = new GeneticAlgorithm<>(geneticOperators, terminationCondition, selectionMethod,true, initialization, fitnessCalculation);
         HAEA<RealIndividual> ga = new HAEA<>(geneticOperators, terminationCondition, selectionMethod, initialization, fitnessCalculation);
         ga.setEvolutionInterceptor(evolutionInterceptor);
