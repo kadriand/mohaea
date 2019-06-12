@@ -47,6 +47,39 @@ public class NSGA2FastNonDominatedSorting<T extends Individual> extends FastNonD
         }
     }
 
+    public void fillExternalIndividualDiversityMeasures(T externalIndividual) {
+        double[] comparisonObjectives = externalIndividual.getObjectiveValues();
+        int rank = 0;
+        boolean dominated = true;
+        while (rank < ranksSize && dominated)
+            dominated = individualRanks[rank++].stream().anyMatch(rankIndividual -> dominanceComparison(comparisonObjectives, rankIndividual.getObjectiveValues()) == 1);
+
+        int individualRank = rank - 1;
+        externalIndividual.setParetoRank(individualRank);
+        List<T> rankIndividuals = individualRanks[individualRank];
+        Individual[][] nearestIndividuals = new Individual[objectivesSize][2];
+
+        for (T rankIndividual : rankIndividuals)
+            for (int o = 0; o < objectivesSize; o++)
+                if (rankIndividual.getObjectiveValues()[o] < externalIndividual.getObjectiveValues()[o]) {
+                    if (nearestIndividuals[o][0] == null || externalIndividual.getObjectiveValues()[o] - rankIndividual.getObjectiveValues()[o] < externalIndividual.getObjectiveValues()[o] - nearestIndividuals[o][0].getObjectiveValues()[o])
+                        nearestIndividuals[o][0] = rankIndividual;
+                } else if (externalIndividual.getObjectiveValues()[o] < rankIndividual.getObjectiveValues()[o]) {
+                    if (nearestIndividuals[o][1] == null || rankIndividual.getObjectiveValues()[o] - externalIndividual.getObjectiveValues()[o] < nearestIndividuals[o][1].getObjectiveValues()[o] - externalIndividual.getObjectiveValues()[o])
+                        nearestIndividuals[o][1] = rankIndividual;
+                }
+
+        externalIndividual.setDiversityMeasures(new double[objectivesSize]);
+        for (int o = 0; o < objectivesSize; o++) {
+            double objectiveCrowdingDistance;
+            if (nearestIndividuals[o][0] == null || nearestIndividuals[o][1] == null)
+                objectiveCrowdingDistance = 1.0;
+            else
+                objectiveCrowdingDistance = (nearestIndividuals[o][1].getObjectiveValues()[o] - nearestIndividuals[o][0].getObjectiveValues()[o]) / objectivesRange[individualRank][o];
+            externalIndividual.getDiversityMeasures()[o] = objectiveCrowdingDistance;
+        }
+    }
+
     @Override
     protected void comparePointWithPopulation(int index, int from) {
         super.comparePointWithPopulation(index, from);

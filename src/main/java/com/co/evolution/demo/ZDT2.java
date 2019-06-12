@@ -1,6 +1,6 @@
 package com.co.evolution.demo;
 
-import com.co.evolution.algorithm.HAEA;
+import com.co.evolution.algorithm.MOHAEA;
 import com.co.evolution.demo.functions.ZitzlerDebThiele;
 import com.co.evolution.fitness.StrengthParetoFitnessCalculation;
 import com.co.evolution.geneticoperators.RealCrossAverage;
@@ -65,7 +65,7 @@ public class ZDT2 {
         EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "zdt2-spea2/spea2-", objectiveFunctions);
 
         //        GeneticAlgorithm<RealIndividual> ga = new GeneticAlgorithm<>(geneticOperators, terminationCondition, selectionMethod,true, initialization, fitnessCalculation);
-        HAEA<RealIndividual> ga = new HAEA<>(geneticOperators, terminationCondition, selectionMethod, initialization, fitnessCalculation);
+        MOHAEA<RealIndividual> ga = new MOHAEA<>(geneticOperators, terminationCondition, selectionMethod, initialization, fitnessCalculation);
         ga.setEvolutionInterceptor(evolutionInterceptor);
 
         Population<RealIndividual> finalPop = ga.apply();

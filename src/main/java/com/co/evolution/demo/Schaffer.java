@@ -1,6 +1,6 @@
 package com.co.evolution.demo;
 
-import com.co.evolution.algorithm.HAEA;
+import com.co.evolution.algorithm.MOHAEA;
 import com.co.evolution.demo.functions.SchafferFunction;
 import com.co.evolution.fitness.CrowdingDistanceFitnessCalculation;
 import com.co.evolution.geneticoperators.RealCrossAverage;
@@ -35,7 +35,7 @@ public class Schaffer {
         Double[] min = new Double[dimensions];
         Double[] max = new Double[dimensions];
 
-        int MAX_ITERATIONS = 200;
+        int MAX_ITERATIONS = 100;
         int POPULATION_SIZE = 100;
 
         ObjectiveFunction[] objectiveFunctions = new ObjectiveFunction[2];
@@ -61,9 +61,9 @@ public class Schaffer {
         //        FitnessCalculation<RealIndividual> fitnessCalculation = new StrengthParetoFitnessCalculation<RealIndividual>(objectiveFunctions);
         //        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "scha/spea2-", objectiveFunctions);
 
-//        evolutionInterceptor = new OperatorsRatesInterceptor<>("scha/spea2-", geneticOperators, "tsv", "\t");
+//        evolutionInterceptor = new OperatorsRatesInterceptor<>("scha/nsga2-", geneticOperators, "tsv", "\t");
         //        GeneticAlgorithm<RealIndividual> ga = new GeneticAlgorithm<>(geneticOperators, terminationCondition, selectionMethod,true, initialization, fitnessCalculation);
-        HAEA<RealIndividual> ga = new HAEA<>(geneticOperators, terminationCondition, selectionMethod, initialization, fitnessCalculation);
+        MOHAEA<RealIndividual> ga = new MOHAEA<>(geneticOperators, terminationCondition, selectionMethod, initialization, fitnessCalculation);
         ga.setEvolutionInterceptor(evolutionInterceptor);
 
         Population<RealIndividual> finalPop = ga.apply();

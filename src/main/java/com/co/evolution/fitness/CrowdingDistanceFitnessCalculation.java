@@ -40,6 +40,9 @@ public class CrowdingDistanceFitnessCalculation<T extends Individual> implements
      */
     @Override
     public double computeIndividualFitness(T individual, List<T> population) {
+        if (!population.contains(individual))
+            paretoRanks.fillExternalIndividualDiversityMeasures(individual);
+
         double crowdingDistance = DoubleStream.of(individual.getDiversityMeasures()).sum();
         double density = 1.0 / (2.0 + crowdingDistance);
         if (density > 1)

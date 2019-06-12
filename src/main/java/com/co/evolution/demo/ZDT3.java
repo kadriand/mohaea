@@ -1,6 +1,6 @@
 package com.co.evolution.demo;
 
-import com.co.evolution.algorithm.HAEA;
+import com.co.evolution.algorithm.ElitistMOHAEAFixedOffspring;
 import com.co.evolution.demo.functions.ZitzlerDebThiele;
 import com.co.evolution.fitness.CrowdingDistanceFitnessCalculation;
 import com.co.evolution.geneticoperators.RealCrossAverage;
@@ -8,7 +8,6 @@ import com.co.evolution.geneticoperators.RealMutation;
 import com.co.evolution.geneticoperators.RealPickRandom;
 import com.co.evolution.individual.RealIndividual;
 import com.co.evolution.initialization.RandomRealInitialization;
-import com.co.evolution.interceptor.OperatorsRatesInterceptor;
 import com.co.evolution.interceptor.ParetoPlotterImageInterceptor;
 import com.co.evolution.model.EvolutionInterceptor;
 import com.co.evolution.model.FitnessCalculation;
@@ -36,7 +35,7 @@ public class ZDT3 {
         Double[] min = new Double[dimensions];
         Double[] max = new Double[dimensions];
 
-        int MAX_ITERATIONS = 300;
+        int MAX_ITERATIONS = 100;
         int POPULATION_SIZE = 100;
 
         ObjectiveFunction[] objectiveFunctions = new ObjectiveFunction[2];
@@ -64,9 +63,9 @@ public class ZDT3 {
         //        FitnessCalculation<RealIndividual> fitnessCalculation = new StrengthParetoFitnessCalculation<RealIndividual>(objectiveFunctions);
         //        EvolutionInterceptor<RealIndividual> evolutionInterceptor = new ParetoPlotterImageInterceptor<>(MAX_ITERATIONS / 5, "zdt3/spea2-", objectiveFunctions);
 
-        evolutionInterceptor = new OperatorsRatesInterceptor<>("zdt3/nsga2-", geneticOperators, "tsv", "\t");
+//        evolutionInterceptor = new OperatorsRatesInterceptor<>("zdt3/nsga2-", geneticOperators, "tsv", "\t");
         //        GeneticAlgorithm<RealIndividual> ga = new GeneticAlgorithm<>(geneticOperators, terminationCondition, selectionMethod,true, initialization, fitnessCalculation);
-        HAEA<RealIndividual> ga = new HAEA<>(geneticOperators, terminationCondition, selectionMethod, initialization, fitnessCalculation);
+        ElitistMOHAEAFixedOffspring<RealIndividual> ga = new ElitistMOHAEAFixedOffspring<>(geneticOperators, terminationCondition, selectionMethod, initialization, fitnessCalculation);
         ga.setEvolutionInterceptor(evolutionInterceptor);
 
         Population<RealIndividual> finalPop = ga.apply();

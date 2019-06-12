@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.DoubleStream;
 
-public class HAEA<T extends Individual> extends Algorithm<T> {
+public class MOHAEA<T extends Individual> extends Algorithm<T> {
 
-    public HAEA(List<GeneticOperator<T>> geneticOperators, TerminationCondition<T> terminationCondition, SelectionMethod<T> selectionMethod, PopulationInitialization<T> initialization, FitnessCalculation<T> fitnessCalculation) {
+    public MOHAEA(List<GeneticOperator<T>> geneticOperators, TerminationCondition<T> terminationCondition, SelectionMethod<T> selectionMethod, PopulationInitialization<T> initialization, FitnessCalculation<T> fitnessCalculation) {
         super(geneticOperators, terminationCondition, selectionMethod, initialization, fitnessCalculation, new DefaultInterceptor<>());
     }
 
