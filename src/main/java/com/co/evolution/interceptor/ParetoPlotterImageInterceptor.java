@@ -44,13 +44,15 @@ public class ParetoPlotterImageInterceptor<T extends Individual> extends Evoluti
             pointsFile.getParentFile().mkdirs();
             StringBuilder generationInfo = new StringBuilder();
             generationInfo
-                    .append("objective1")
+                    .append("individual")
+                    .append(fieldSeparator + "objective1")
                     .append(fieldSeparator + "objective2")
                     .append(fieldSeparator + "fitness")
                     .append(fieldSeparator + "rank")
                     .append(fieldSeparator + "penalization");
             population.forEach(individual -> generationInfo
-                    .append("\n" + individual.getObjectiveValues()[0])
+                    .append("\n" + individual.toString())
+                    .append(fieldSeparator + individual.getObjectiveValues()[0])
                     .append(fieldSeparator + individual.getObjectiveValues()[1])
                     .append(fieldSeparator + individual.getFitness())
                     .append(fieldSeparator + individual.getParetoRank())

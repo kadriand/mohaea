@@ -41,7 +41,7 @@ public class MOHAEA<T extends Individual> extends Algorithm<T> {
             evolutionInterceptor.intercept(population, iteration, operatorsRates, false);
 
             List<T> parentsAndChildren = new ArrayList<>();
-            Map<T, Population<T>> individualOffsprings = new HashMap<>();
+            Map<T, Population<T>> families = new HashMap<>();
             Map<T, Integer> individualOperatorIdxs = new HashMap<>();
             selectionMethod.init(population);
 
@@ -58,7 +58,7 @@ public class MOHAEA<T extends Individual> extends Algorithm<T> {
                 List<T> children = geneticOperator.apply(offspringParents);
                 children.forEach(child -> child.setObjectiveValues(fitnessCalculation.computeObjectives(child)));
                 parentsAndChildren.addAll(children);
-                individualOffsprings.put(individual, new Population<>(children));
+                families.put(individual, new Population<>(children));
                 individualOperatorIdxs.put(individual, genetOperatorRouletteIdx);
             }
 
@@ -66,7 +66,7 @@ public class MOHAEA<T extends Individual> extends Algorithm<T> {
             fitnessCalculation.computePopulationRanksFitness(parentsAndChildren);
             Population<T> newPopulation = new Population<>();
             Map<T, double[]> newOperatorsRates = new HashMap<>();
-            for (Map.Entry<T, Population<T>> offspring : individualOffsprings.entrySet()) {
+            for (Map.Entry<T, Population<T>> offspring : families.entrySet()) {
                 T bestChild = offspring.getValue().getBest();
                 T parent = offspring.getKey();
                 double[] parentOperatorsRates = operatorsRates.get(parent);
