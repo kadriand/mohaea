@@ -43,21 +43,16 @@ public class ParetoPlotterImageInterceptor<T extends Individual> extends Evoluti
             File pointsFile = new File(String.format("output/%sgeneration-%s.%s", imagesPathPrefix, generation, textExtension));
             pointsFile.getParentFile().mkdirs();
             StringBuilder generationInfo = new StringBuilder();
-            generationInfo
-                    .append("individual")
-                    .append(fieldSeparator + "objective1")
-                    .append(fieldSeparator + "objective2")
-                    .append(fieldSeparator + "fitness")
-                    .append(fieldSeparator + "rank")
-                    .append(fieldSeparator + "penalization");
+            generationInfo.append(String.format("individual%1$sobjective1%1$sobjective2%1$sfitness%1$srank%1$spenalization", fieldSeparator));
             population.forEach(individual -> generationInfo
-                    .append("\n" + individual.toString())
-                    .append(fieldSeparator + individual.getObjectiveValues()[0])
-                    .append(fieldSeparator + individual.getObjectiveValues()[1])
-                    .append(fieldSeparator + individual.getFitness())
-                    .append(fieldSeparator + individual.getParetoRank())
-                    .append(fieldSeparator + individual.getPenalization())
-            );
+                    .append(String.format("\n%s%s%s%2$s%s%2$s%s%2$s%s%2$s%s",
+                            individual.toString(), fieldSeparator,
+                            individual.getObjectiveValues()[0],
+                            individual.getObjectiveValues()[1],
+                            individual.getFitness(),
+                            individual.getParetoRank(),
+                            individual.getPenalization()
+                    )));
             Files.write(pointsFile.toPath(), generationInfo.toString().getBytes());
             System.out.println("Pareto points stored in " + pointsFile.getCanonicalPath());
         } catch (Exception e) {
