@@ -2,6 +2,7 @@ package com.co.evolution.interceptor;
 
 import com.co.evolution.model.EvolutionInterceptor;
 import com.co.evolution.model.GeneticOperator;
+import com.co.evolution.model.ObjectiveFunction;
 import com.co.evolution.model.Population;
 import com.co.evolution.model.individual.Individual;
 
@@ -19,20 +20,26 @@ public class OperatorsRatesInterceptor<T extends Individual> extends EvolutionIn
     private String textExtension = "csv";
     private String[] geneticOperators;
     private File ratesFile;
+    private File[] objectiveFiles;
 
-    public OperatorsRatesInterceptor(String ratesPathPrefix, List<GeneticOperator<T>> geneticOperators) {
-        init(ratesPathPrefix, geneticOperators);
-    }
-
-    public OperatorsRatesInterceptor(String ratesPathPrefix, List<GeneticOperator<T>> geneticOperators, String textExtension, String fieldSeparator) {
+    public OperatorsRatesInterceptor(String ratesPathPrefix, List<GeneticOperator<T>> geneticOperators, List<ObjectiveFunction<T>> objectiveFunctions, String textExtension, String fieldSeparator) {
         this.fieldSeparator = fieldSeparator;
         this.textExtension = textExtension;
-        init(ratesPathPrefix, geneticOperators);
+        init(ratesPathPrefix, geneticOperators, objectiveFunctions);
     }
 
-    private void init(String ratesPathPrefix, List<GeneticOperator<T>> geneticOperators) {
+    private void init(String ratesPathPrefix, List<GeneticOperator<T>> geneticOperators, List<ObjectiveFunction<T>> objectiveFunctions) {
         try {
-            this.geneticOperators = geneticOperators.stream().map(p -> p.getClass().getSimpleName()).toArray(String[]::new);
+            int o = 0, f = 0;
+            this.geneticOperators = new String[geneticOperators.size()];
+            for (GeneticOperator<T> operator : geneticOperators)
+                this.geneticOperators[o++] = operator.getClass().getSimpleName();
+            this.objectiveFiles = new File[objectiveFunctions.size()];
+            for (ObjectiveFunction<T> objective : objectiveFunctions) {
+                this.objectiveFiles[f] = new File(String.format("output/%sof-%s.%s", ratesPathPrefix, objective.getClass().getSimpleName(), textExtension));
+                Files.write(objectiveFiles[f++].toPath(), "".getBytes());
+            }
+
             this.ratesFile = new File(String.format("output/%srates.%s", ratesPathPrefix, textExtension));
             ratesFile.getParentFile().mkdirs();
             StringBuilder ratesHeader = new StringBuilder("Generation");
@@ -66,6 +73,13 @@ public class OperatorsRatesInterceptor<T extends Individual> extends EvolutionIn
             for (double operatorsRates : operatorsRatesMeans)
                 ratesMeans.append(fieldSeparator).append(operatorsRates);
             Files.write(ratesFile.toPath(), ratesMeans.toString().getBytes(), StandardOpenOption.APPEND);
+
+            for (int f = 0; f < objectiveFiles.length; f++) {
+                StringBuilder objectives = new StringBuilder("\n" + generation);
+                for (T individual : population)
+                    objectives.append(fieldSeparator).append(individual.getObjectiveValues()[f]);
+                Files.write(objectiveFiles[f].toPath(), objectives.toString().getBytes(), StandardOpenOption.APPEND);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
