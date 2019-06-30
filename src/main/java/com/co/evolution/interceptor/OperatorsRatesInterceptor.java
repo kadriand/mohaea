@@ -34,11 +34,6 @@ public class OperatorsRatesInterceptor<T extends Individual> extends EvolutionIn
             this.geneticOperators = new String[geneticOperators.size()];
             for (GeneticOperator<T> operator : geneticOperators)
                 this.geneticOperators[o++] = operator.getClass().getSimpleName();
-            this.objectiveFiles = new File[objectiveFunctions.size()];
-            for (ObjectiveFunction<T> objective : objectiveFunctions) {
-                this.objectiveFiles[f] = new File(String.format("output/%sof-%s.%s", ratesPathPrefix, objective.getClass().getSimpleName(), textExtension));
-                Files.write(objectiveFiles[f++].toPath(), "".getBytes());
-            }
 
             this.ratesFile = new File(String.format("output/%srates.%s", ratesPathPrefix, textExtension));
             ratesFile.getParentFile().mkdirs();
@@ -47,6 +42,14 @@ public class OperatorsRatesInterceptor<T extends Individual> extends EvolutionIn
                 ratesHeader.append(fieldSeparator).append(geneticOperator);
             Files.write(ratesFile.toPath(), ratesHeader.toString().getBytes());
             System.out.println("Rates file stored in " + ratesFile.getCanonicalPath());
+
+            this.objectiveFiles = new File[objectiveFunctions.size()];
+            for (ObjectiveFunction<T> objective : objectiveFunctions) {
+                this.objectiveFiles[f] = new File(String.format("output/%sof-%s.%s", ratesPathPrefix, objective.getClass().getSimpleName(), textExtension));
+                Files.write(objectiveFiles[f].toPath(), "".getBytes());
+                System.out.println("Genetic operator file stored in " + this.objectiveFiles[f].getCanonicalPath());
+                f++;
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
