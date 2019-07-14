@@ -5,11 +5,11 @@ import com.co.evolution.model.GeneticOperator;
 import com.co.evolution.model.ObjectiveFunction;
 import com.co.evolution.model.Population;
 import com.co.evolution.model.individual.Individual;
+import lombok.Setter;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.DoubleStream;
@@ -21,6 +21,8 @@ public class OperatorsRatesInterceptor<T extends Individual> extends EvolutionIn
     private String[] geneticOperators;
     private File ratesFile;
     private File[] objectiveFiles;
+    @Setter
+    private boolean onlyFeasible;
 
     public OperatorsRatesInterceptor(String ratesPathPrefix, List<GeneticOperator<T>> geneticOperators, List<ObjectiveFunction<T>> objectiveFunctions, String textExtension, String fieldSeparator) {
         this.fieldSeparator = fieldSeparator;
@@ -47,7 +49,7 @@ public class OperatorsRatesInterceptor<T extends Individual> extends EvolutionIn
             for (ObjectiveFunction<T> objective : objectiveFunctions) {
                 this.objectiveFiles[f] = new File(String.format("output/%sof-%s.%s", ratesPathPrefix, objective.getClass().getSimpleName(), textExtension));
                 Files.write(objectiveFiles[f].toPath(), "".getBytes());
-                System.out.println("Genetic operator file stored in " + this.objectiveFiles[f].getCanonicalPath());
+                System.out.println("Genetic operators file stored in " + this.objectiveFiles[f].getCanonicalPath());
                 f++;
             }
         } catch (Exception e) {
@@ -66,11 +68,6 @@ public class OperatorsRatesInterceptor<T extends Individual> extends EvolutionIn
         for (int i = 0; i < operatorsRatesMeans.length; i++)
             operatorsRatesMeans[i] /= ratesSum;
 
-        System.out.println("Generation: " + generation + ". Best Individual: " + population.getBest().toString() +
-                ". Best Fitness: " + population.getBest().getFitness() +
-                ". Best Objective Functions: " + Arrays.toString(population.getBest().getObjectiveValues()) +
-                ". Rates means: " + Arrays.toString(operatorsRatesMeans));
-
         try {
             StringBuilder ratesMeans = new StringBuilder("\n" + generation);
             for (double operatorsRates : operatorsRatesMeans)
@@ -80,7 +77,8 @@ public class OperatorsRatesInterceptor<T extends Individual> extends EvolutionIn
             for (int f = 0; f < objectiveFiles.length; f++) {
                 StringBuilder objectives = new StringBuilder("\n" + generation);
                 for (T individual : population)
-                    objectives.append(fieldSeparator).append(individual.getObjectiveValues()[f]);
+                    if (!onlyFeasible || individual.getPenalization() == 0)
+                        objectives.append(fieldSeparator).append(individual.getObjectiveValues()[f]);
                 Files.write(objectiveFiles[f].toPath(), objectives.toString().getBytes(), StandardOpenOption.APPEND);
             }
         } catch (Exception e) {
